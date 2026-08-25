@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>일본어 회화 암기카드 &middot; 1과·2과</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&family=Gowun+Dodum&family=Gowun+Batang:wght@400;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#2b2a3a;
+    --ink-soft:#5c596e;
+    --paper:#eef0e8;
+    --paper-deep:#e3e6da;
+    --card:#fcfbf6;
+    --card-back:#fbeef1;
+    --sakura:#e2748d;
+    --sakura-deep:#c15271;
+    --moss:#5e8267;
+    --moss-deep:#456350;
+    --gold:#bd9138;
+    --gold-deep:#94701f;
+    --line: rgba(43,42,58,0.14);
+    --shadow: 0 18px 40px -18px rgba(43,42,58,0.35);
+    --radius: 22px;
+    --accent: var(--sakura);
+    --accent-deep: var(--sakura-deep);
+  }
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{
+    margin:0;
+    min-height:100vh;
+    background:
+      radial-gradient(1200px 600px at 85% -10%, rgba(226,116,141,0.10), transparent 60%),
+      radial-gradient(1000px 500px at -10% 110%, rgba(94,130,103,0.10), transparent 55%),
+      var(--paper);
+    background-attachment: fixed;
+    color:var(--ink);
+    font-family:'Gowun Dodum', sans-serif;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding: 28px 16px 60px;
+  }
+
+  /* faint notebook grid on the page background */
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background-image:
+      linear-gradient(rgba(43,42,58,0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(43,42,58,0.035) 1px, transparent 1px);
+    background-size: 28px 28px;
+    pointer-events:none;
+    z-index:0;
+  }
+
+  .app{ position:relative; z-index:1; width:100%; max-width: 620px; }
+
+  /* ---------- Header ---------- */
+  header.top{ text-align:center; margin-bottom:22px; }
+  header.top .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    letter-spacing:.16em;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+  }
+  header.top h1{
+    font-family:'Zen Maru Gothic', sans-serif;
+    font-weight:900;
+    font-size: clamp(26px, 6vw, 34px);
+    margin: 6px 0 4px;
+    color:var(--ink);
+  }
+  header.top h1 .accent-word{ color:var(--accent); transition: color .35s; }
+  header.top p.desc{ margin:0; color:var(--ink-soft); font-size:14px; }
+
+  /* ---------- Tabs (folder-tab style) ---------- */
+  .tabs{
+    display:flex;
+    gap:6px;
+    padding: 0 6px;
+    position:relative;
+  }
+  .tab{
+    flex:1;
+    appearance:none;
+    border:none;
+    cursor:pointer;
+    padding: 12px 8px 14px;
+    font-family:'Zen Maru Gothic', sans-serif;
+    font-weight:700;
+    font-size:14.5px;
+    color:var(--ink-soft);
+    background: #dfe1d6;
+    border-radius: 14px 14px 0 0;
+    position:relative;
+    top:2px;
+    transition: all .25s ease;
+    text-align:center;
+  }
+  .tab .tab-sub{
+    display:block;
+    font-family:'Gowun Batang', serif;
+    font-weight:400;
+    font-size:11px;
+    opacity:.75;
+    margin-top:2px;
+  }
+  .tab[data-active="true"]{
+    background:var(--card);
+    color:var(--accent-deep);
+    top:0;
+    box-shadow: 0 -6px 16px -10px rgba(43,42,58,.25);
+  }
+  .tab-panel-wrap{
+    background:var(--card);
+    border-radius: 0 14px 18px 18px;
+    box-shadow: var(--shadow);
+    padding: 22px 20px 26px;
+    border: 1px solid var(--line);
+    border-top:none;
+  }
+
+  /* ---------- Toolbar ---------- */
+  .toolbar{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:16px;
+    flex-wrap:wrap;
+  }
+  select#sectionSelect{
+    flex:1;
+    min-width:160px;
+    font-family:'Gowun Dodum', sans-serif;
+    font-size:13.5px;
+    padding:9px 12px;
+    border-radius:12px;
+    border:1px solid var(--line);
+    background:#fff;
+    color:var(--ink);
+  }
+  .iconbtn{
+    border:1px solid var(--line);
+    background:#fff;
+    color:var(--ink-soft);
+    width:38px; height:38px;
+    border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    font-size:16px;
+    transition: transform .15s ease, background .2s ease, color .2s ease;
+  }
+  .iconbtn:hover{ color:var(--accent-deep); border-color: var(--accent); }
+  .iconbtn:active{ transform:scale(.92); }
+  .iconbtn[aria-pressed="true"]{ background:var(--accent); color:#fff; border-color:var(--accent); }
+  .iconbtn.textbtn{
+    width:auto;
+    padding: 0 14px;
+    font-family:'Gowun Dodum', sans-serif;
+    font-weight:700;
+    font-size:12.5px;
+    white-space:nowrap;
+  }
+
+  .progress-row{
+    display:flex; align-items:center; justify-content:space-between;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-bottom:10px;
+  }
+  .progress-bar{
+    height:5px; border-radius:3px; background:var(--paper-deep);
+    overflow:hidden; flex:1; margin:0 10px;
+  }
+  .progress-bar > div{
+    height:100%; background:var(--accent); border-radius:3px;
+    transition: width .3s ease;
+  }
+
+  /* ---------- Card ---------- */
+  .stage{ perspective: 1400px; margin: 6px 0 18px; }
+  .card{
+    position:relative;
+    width:100%;
+    min-height: 300px;
+    border-radius: var(--radius);
+    transform-style: preserve-3d;
+    transition: transform .5s cubic-bezier(.2,.9,.25,1);
+    cursor:pointer;
+  }
+  .card.flipped{ transform: rotateY(180deg); }
+  .face{
+    position:absolute; inset:0;
+    -webkit-backface-visibility:hidden; backface-visibility:hidden;
+    border-radius: var(--radius);
+    border:1.5px solid var(--line);
+    display:flex; flex-direction:column;
+    padding: 22px 24px 20px;
+    box-shadow: 0 2px 0 rgba(43,42,58,0.04) inset;
+  }
+  .face.front{
+    background: var(--card);
+    justify-content:space-between;
+  }
+  .face.back{
+    background: var(--card-back);
+    transform: rotateY(180deg);
+    justify-content:space-between;
+  }
+  /* two little "binder holes" like a real flashcard */
+  .face::before, .face::after{
+    content:"";
+    position:absolute; top:14px;
+    width:11px; height:11px;
+    border-radius:50%;
+    background: var(--paper);
+    border:1.5px solid var(--line);
+  }
+  .face::before{ left:16px; }
+  .face::after{ right:16px; }
+
+  .badge-row{
+    display:flex; justify-content:center; margin-top:6px;
+  }
+  .badge{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    letter-spacing:.04em;
+    color:var(--accent-deep);
+    background: rgba(226,116,141,0.12);
+    border:1px solid rgba(226,116,141,0.35);
+    padding:4px 12px;
+    border-radius:999px;
+    max-width: 88%;
+    text-align:center;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+
+  .card-body{
+    flex:1;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    text-align:center;
+    gap:12px;
+    padding: 8px 4px;
+  }
+  .jp-text{
+    font-family:'Zen Maru Gothic', sans-serif;
+    font-weight:700;
+    font-size: clamp(19px, 5.6vw, 25px);
+    line-height:1.5;
+    color:var(--ink);
+    word-break: keep-all;
+  }
+  .pron-text{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 13.5px;
+    color:var(--accent-deep);
+    letter-spacing:.01em;
+    transition: filter .3s ease, opacity .3s ease;
+  }
+  .pron-text.concealed{
+    filter: blur(7px);
+    opacity:.5;
+  }
+  .mean-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:.14em;
+    color: var(--moss-deep);
+    text-transform:uppercase;
+  }
+  .mean-text{
+    font-family:'Gowun Batang', serif;
+    font-weight:700;
+    font-size: clamp(18px, 5.2vw, 23px);
+    color:var(--ink);
+    line-height:1.55;
+  }
+  .mini-jp{
+    font-family:'Gowun Dodum', sans-serif;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    border-top:1px dashed var(--line);
+    padding-top:10px;
+    margin-top:2px;
+  }
+
+  .card-footer-row{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:10px;
+  }
+  .speak-btn{
+    display:flex; align-items:center; gap:7px;
+    border:none;
+    background: var(--accent);
+    color:#fff;
+    font-family:'Gowun Dodum', sans-serif;
+    font-weight:700;
+    font-size:13px;
+    padding:10px 16px;
+    border-radius:999px;
+    cursor:pointer;
+    box-shadow: 0 8px 16px -8px var(--accent-deep);
+    transition: transform .15s ease, filter .2s ease;
+  }
+  .speak-btn:hover{ filter:brightness(1.05); }
+  .speak-btn:active{ transform:scale(.96); }
+  .speak-btn.playing{ animation: pulse 0.9s ease-in-out infinite; }
+  @keyframes pulse{ 0%,100%{ box-shadow:0 8px 16px -8px var(--accent-deep);} 50%{ box-shadow:0 8px 22px -6px var(--accent-deep);} }
+  .speak-btn[disabled]{ opacity:.4; cursor:not-allowed; box-shadow:none; }
+
+  .flip-hint{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--ink-soft);
+    display:flex; align-items:center; gap:6px;
+  }
+  .flip-arrow{
+    display:inline-flex;
+    transition: transform .5s cubic-bezier(.2,.9,.25,1);
+  }
+  .card.flipped .flip-arrow{ transform: rotate(180deg) scaleX(-1); }
+
+  /* ---------- Nav controls ---------- */
+  .nav-row{
+    display:flex; align-items:center; justify-content:center; gap:16px;
+    margin-top:4px;
+  }
+  .navbtn{
+    border:none;
+    background:var(--ink);
+    color:#fff;
+    width:46px; height:46px;
+    border-radius:50%;
+    font-size:18px;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition: transform .15s ease, background .2s ease;
+    box-shadow: 0 10px 18px -10px rgba(43,42,58,.5);
+  }
+  .navbtn:hover{ background:var(--accent-deep); }
+  .navbtn:active{ transform:scale(.9); }
+  .navbtn[disabled]{ opacity:.3; cursor:not-allowed; }
+  .flipbtn{
+    border:1.5px solid var(--accent);
+    background:#fff;
+    color:var(--accent-deep);
+    font-family:'Gowun Dodum', sans-serif;
+    font-weight:700;
+    font-size:13.5px;
+    padding:12px 22px;
+    border-radius:999px;
+    cursor:pointer;
+    display:flex; align-items:center; gap:8px;
+    transition: background .2s ease, color .2s ease, transform .15s ease;
+  }
+  .flipbtn:hover{ background:var(--accent); color:#fff; }
+  .flipbtn:active{ transform:scale(.96); }
+
+  footer.note{
+    text-align:center;
+    color:var(--ink-soft);
+    font-size:11.5px;
+    margin-top:22px;
+    line-height:1.7;
+    padding: 0 10px;
+  }
+  footer.note b{ color:var(--ink); }
+
+  .kbd-hint{ display:none; }
+  @media (min-width: 640px){
+    .kbd-hint{ display:inline; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .card, .flip-arrow, .navbtn, .speak-btn{ transition:none !important; animation:none !important; }
+  }
+
+  /* accent theming per tab */
+  body[data-accent="sakura"]{ --accent:var(--sakura); --accent-deep:var(--sakura-deep); }
+  body[data-accent="moss"]{ --accent:var(--moss); --accent-deep:var(--moss-deep); }
+  body[data-accent="gold"]{ --accent:var(--gold); --accent-deep:var(--gold-deep); }
+</style>
+</head>
+<body data-accent="sakura">
+<div class="app">
+
+  <header class="top">
+    <div class="eyebrow">2학년 2학기 &middot; 일본어 회화</div>
+    <h1>おぼえる<span class="accent-word">カード</span></h1>
+    <p class="desc">문장을 보고, 발음을 확인하고, 소리 내어 들어본 뒤 &mdash; 화살표로 뜻을 확인하세요.</p>
+  </header>
+
+  <nav class="tabs" id="tabs"></nav>
+
+  <div class="tab-panel-wrap">
+
+    <div class="toolbar">
+      <select id="sectionSelect"></select>
+      <button class="iconbtn textbtn" id="pronToggleBtn" title="한글 발음표기 표시/숨기기" aria-pressed="false">발음보기</button>
+      <button class="iconbtn" id="shuffleBtn" title="순서 섞기" aria-pressed="false">&#128256;</button>
+      <button class="iconbtn" id="resetBtn" title="처음으로">&#8634;</button>
+    </div>
+
+    <div class="progress-row">
+      <span id="counter">1 / 1</span>
+      <div class="progress-bar"><div id="progressFill" style="width:0%"></div></div>
+      <span id="sectionTag">&nbsp;</span>
+    </div>
+
+    <div class="stage">
+      <div class="card" id="card">
+        <div class="face front">
+          <div class="badge-row"><span class="badge" id="badgeFront">&nbsp;</span></div>
+          <div class="card-body">
+            <div class="jp-text" id="jpText">&nbsp;</div>
+            <div class="pron-text" id="pronText">&nbsp;</div>
+          </div>
+          <div class="card-footer-row">
+            <button class="speak-btn" id="speakBtn">&#128266; <span>음성 듣기</span></button>
+            <span class="flip-hint">뒤집기 <span class="flip-arrow">&#8635;</span></span>
+          </div>
+        </div>
+        <div class="face back">
+          <div class="badge-row"><span class="badge" id="badgeBack">해석</span></div>
+          <div class="card-body">
+            <div class="mean-label">뜻</div>
+            <div class="mean-text" id="meanText">&nbsp;</div>
+          </div>
+          <div class="mini-jp" id="miniJp">&nbsp;</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="navbtn" id="prevBtn" title="이전 (←)">&#8592;</button>
+      <button class="flipbtn" id="flipBtn"><span class="flip-arrow">&#8635;</span> 뜻 확인</button>
+      <button class="navbtn" id="nextBtn" title="다음 (→)">&#8594;</button>
+    </div>
+
+  </div>
+
+  <footer class="note">
+    &#128172; <b>발음보기</b> 버튼으로 한글 발음표기를 보이거나 가릴 수 있어요 (안 보고 싶은 친구는 꺼두세요).<br>
+    발음표기는 학습 편의를 위한 참고용이며, 정확한 발음은 음성 듣기 버튼으로 확인하세요.<br>
+    음성은 기기의 일본어 음성 엔진(Web Speech API)을 사용합니다 &middot; 카드를 클릭해도 뒤집힙니다
+    <span class="kbd-hint">&middot; 키보드 ← → 이동, Space 뒤집기</span>
+  </footer>
+</div>
+
+<script>
+const DATA = {"1과 문장": [{"title": "① 기본 표현 (교과서 24쪽)", "cards": [{"jp": "この こは、ともだちの ユジンちゃん。", "pron": "코노 코와, 토모다치노 유진짱.", "mean": "얘는 친구 유진이야.", "src": "1과 p.24 기본표현"}, {"jp": "はじめまして。パク・ユジンです。", "pron": "하지메마시테. 파쿠 유진데스.", "mean": "처음 뵙겠습니다. 박유진입니다.", "src": "1과 p.24 기본표현"}, {"jp": "どうぞ よろしく おねがいします。", "pron": "도-조 요로시쿠 오네가이시마스.", "mean": "잘 부탁드립니다.", "src": "1과 p.24 기본표현"}, {"jp": "こちらこそ、どうぞ よろしく！", "pron": "코치라코소, 도-조 요로시쿠!", "mean": "저야말로 잘 부탁해요!", "src": "1과 p.24 기본표현"}, {"jp": "どんな うたが すき？", "pron": "돈나 우타가 스키?", "mean": "어떤 노래를 좋아해?", "src": "1과 p.24 기본표현"}, {"jp": "にほんの アニメソングが すき。", "pron": "니혼노 아니메송가 스키.", "mean": "일본 애니메이션 노래를 좋아해.", "src": "1과 p.24 기본표현"}, {"jp": "じょうずに うたう ために、れんしゅうして いるよ。", "pron": "죠-즈니 우타우 타메니, 렌슈-시테 이루요.", "mean": "잘 부르기 위해 연습하고 있어.", "src": "1과 p.24 기본표현"}]}, {"title": "② 플러스 표현 (교과서 24쪽)", "cards": [{"jp": "ユジンちゃんも りゅうがくせいだよ。", "pron": "유진짱모 류-가쿠세-다요.", "mean": "유진이도 유학생이야.", "src": "1과 p.24 플러스표현(~よ)"}, {"jp": "にほんの うたを きく ことかな。", "pron": "니혼노 우타오 키쿠 코토카나.", "mean": "일본 노래를 듣는 것이려나?", "src": "1과 p.24 플러스표현(~かな)"}, {"jp": "にほんの アニメソングとか、ロックとか……。", "pron": "니혼노 아니메송토카, 록쿠토카…….", "mean": "일본 애니메이션 노래라든가, 록이라든가….", "src": "1과 p.24 플러스표현(~とか)"}]}, {"title": "③ 25쪽 연습문제 1-①", "cards": [{"jp": "みなさん、＿＿＿＿＿＿＿＿＿＿＿＿＿＿。", "pron": "미나상, ＿＿＿＿＿＿＿＿.", "mean": "여러분, ＿＿＿＿（빈칸）.", "src": "1과 p.25 문제1-①"}, {"jp": "よろしく おねがいします。", "pron": "요로시쿠 오네가이시마스.", "mean": "잘 부탁드립니다.", "src": "1과 p.25 문제1-① (유진 대사)"}, {"jp": "わたしも りゅうがくせいです。", "pron": "와타시모 류-가쿠세-데스.", "mean": "저도 유학생입니다.", "src": "1과 p.25 문제1-① 선택지①"}, {"jp": "こちらこそ、どうぞ よろしく。", "pron": "코치라코소, 도-조 요로시쿠.", "mean": "저야말로 잘 부탁해요.", "src": "1과 p.25 문제1-① 선택지②"}, {"jp": "こちらは、パク・ユジンさんです。", "pron": "코치라와, 파쿠 유진산데스.", "mean": "이쪽은 박유진 씨입니다.", "src": "1과 p.25 문제1-① 선택지③"}, {"jp": "はじめまして、パク・ユジンです。", "pron": "하지메마시테, 파쿠 유진데스.", "mean": "처음 뵙겠습니다, 박유진입니다.", "src": "1과 p.25 문제1-① 선택지④"}]}, {"title": "④ 25쪽 연습문제 1-②", "cards": [{"jp": "さくらさん、しゅみは なんですか。", "pron": "사쿠라상, 슈미와 난데스카.", "mean": "사쿠라 씨, 취미는 무엇입니까?", "src": "1과 p.25 문제1-②"}, {"jp": "うたを きく ことです。", "pron": "우타오 키쿠 코토데스.", "mean": "노래를 듣는 것입니다.", "src": "1과 p.25 문제1-②"}, {"jp": "そうですか。＿＿＿＿＿＿＿＿＿＿＿＿＿＿。", "pron": "소-데스카. ＿＿＿＿＿.", "mean": "그래요? ＿＿＿＿（빈칸）.", "src": "1과 p.25 문제1-②"}, {"jp": "Ｋポップが すきです。", "pron": "케-폽푸가 스키데스.", "mean": "K팝을 좋아합니다.", "src": "1과 p.25 문제1-②"}, {"jp": "うたも すきですか。", "pron": "우타모 스키데스카.", "mean": "노래도 좋아합니까?", "src": "1과 p.25 문제1-② 선택지①"}, {"jp": "どんな うたが すきですか。", "pron": "돈나 우타가 스키데스카.", "mean": "어떤 노래를 좋아합니까?", "src": "1과 p.25 문제1-② 선택지②"}, {"jp": "うたが じょうずですか。", "pron": "우타가 죠-즈데스카.", "mean": "노래를 잘합니까?", "src": "1과 p.25 문제1-② 선택지③"}, {"jp": "さくらさんの しゅみは ゲームですか。", "pron": "사쿠라산노 슈미와 게-무데스카.", "mean": "사쿠라 씨의 취미는 게임입니까?", "src": "1과 p.25 문제1-② 선택지④"}]}, {"title": "⑤ 25쪽 문제2 (듣기, 대본 비공개 - 보기만 수록)", "cards": [{"jp": "(음성) 지우는 무엇을 위해 일본어를 공부하나요?", "pron": "-", "mean": "① 일본 유학을 하기 위해서  ② 일본 여행을 가기 위해서  ③ 일본어 시험을 보기 위해서  ④ 일본인 친구와 대화하기 위해서", "src": "1과 p.25 문제2 (음성 스크립트 미공개)"}]}], "2과 문장": [{"title": "① 듣고 대화하기 1 - 하나미 제안 (교과서 30쪽 / 학습지5)", "cards": [{"jp": "せんせい、しつもんが あります。", "pron": "센세-, 시츠몬가 아리마스.", "mean": "선생님, 질문이 있습니다.", "src": "2과 p.30 / 학습지5"}, {"jp": "この ちかくで おはなみは できますか。", "pron": "코노 치카쿠데 오하나미와 데키마스카.", "mean": "이 근처에서 꽃구경은 가능한가요?", "src": "2과 p.30 / 학습지5"}, {"jp": "できますよ。", "pron": "데키마스요.", "mean": "가능해요.", "src": "2과 p.30 / 학습지5"}, {"jp": "やすみじかんに ともだちに きいて みて ください。", "pron": "야스미지칸니 토모다치니 키이테 미테 쿠다사이.", "mean": "쉬는 시간에 친구에게 물어봐 주세요.", "src": "2과 p.30 / 학습지5"}, {"jp": "わかりました。", "pron": "와카리마시타.", "mean": "알겠습니다.", "src": "2과 p.30 / 학습지5"}, {"jp": "ねえねえ。こんどの どようび、おはなみは どう？", "pron": "네에네에. 콘도노 도요-비, 오하나미와 도-?", "mean": "있잖아. 이번 토요일에 꽃구경 어때?", "src": "2과 p.30 / 학습지5"}, {"jp": "いいね。", "pron": "이-네.", "mean": "좋아.", "src": "2과 p.30 / 학습지5"}, {"jp": "ごめん。どようびは むり。", "pron": "고멘. 도요-비와 무리.", "mean": "미안해. 토요일은 무리야.", "src": "2과 p.30 / 학습지5"}, {"jp": "そう。ざんねんだね。", "pron": "소-. 잔넨다네.", "mean": "그래. 아쉽네.", "src": "2과 p.30 / 학습지5"}]}, {"title": "② 듣고 대화하기 2 - 약속에 늦음 (교과서 31쪽 / 학습지6)", "cards": [{"jp": "どうしよう。", "pron": "도-시요-.", "mean": "어떻게 하지?", "src": "2과 p.31 / 학습지6"}, {"jp": "ジホくん、おそいなあ。", "pron": "지호쿤, 오소이나-.", "mean": "지호야, 늦네.", "src": "2과 p.31 / 학습지6"}, {"jp": "やくそくは １２じだよね。", "pron": "야쿠소쿠와 쥬-니지다요네.", "mean": "약속은 12시 맞지?", "src": "2과 p.31 / 학습지6"}, {"jp": "ジホくん、どこ？", "pron": "지호쿤, 도코?", "mean": "지호야, 어디야?", "src": "2과 p.31 / 학습지6"}, {"jp": "えきまで どのくらい かかる？", "pron": "에키마데 도노쿠라이 카카루?", "mean": "역까지 얼마나 걸려?", "src": "2과 p.31 / 학습지6"}, {"jp": "１０ぷんぐらいかな。ごめんね。", "pron": "쥽뿐구라이카나. 고멘네.", "mean": "10분 정도일까. 미안해.", "src": "2과 p.31 / 학습지6"}, {"jp": "りょうかい。ゆっくりで いいよ。", "pron": "료-카이. 육쿠리데 이-요.", "mean": "알았음. 천천히 해도 돼.", "src": "2과 p.31 / 학습지6"}, {"jp": "ごめん。ありがとう。", "pron": "고멘. 아리가토-.", "mean": "미안. 고마워.", "src": "2과 p.31 / 학습지6"}, {"jp": "わあ、きれい。すごい。", "pron": "와-, 키레-. 스고이.", "mean": "와, 예쁘다. 굉장하다.", "src": "2과 p.31 / 학습지6"}, {"jp": "はなみには まにあって よかった。", "pron": "하나미니와 마니앗테 요캇타.", "mean": "꽃구경에는 늦지 않아서 다행이다.", "src": "2과 p.31 / 학습지6"}]}, {"title": "③ 듣고 말하기 2 - 제안/거절 (교과서 32쪽)", "cards": [{"jp": "こんどの どようび、おはなみは どうですか。", "pron": "콘도노 도요-비, 오하나미와 도-데스카.", "mean": "이번 토요일에 꽃구경 어떻습니까?", "src": "2과 p.32"}, {"jp": "いいですね。", "pron": "이-데스네.", "mean": "좋네요.", "src": "2과 p.32"}, {"jp": "あ、すみません、バイトが あります。", "pron": "아, 스미마셍, 바이토가 아리마스.", "mean": "아, 죄송해요, 아르바이트가 있어요.", "src": "2과 p.32"}, {"jp": "そうですか。＿＿＿＿＿＿＿＿。", "pron": "소-데스카. ＿＿＿＿.", "mean": "그래요? ＿＿＿＿（빈칸）.", "src": "2과 p.32"}, {"jp": "よかったですね。", "pron": "요캇타데스네.", "mean": "다행이네요.", "src": "2과 p.32 선택지①"}, {"jp": "ざんねんですね。", "pron": "잔넨데스네.", "mean": "아쉽네요.", "src": "2과 p.32 선택지②"}, {"jp": "ありがとうございました。", "pron": "아리가토-고자이마시타.", "mean": "감사했습니다.", "src": "2과 p.32 선택지③"}]}, {"title": "④ 듣고 말하기 3 - 소요시간 (교과서 33쪽 / 학습지6)", "cards": [{"jp": "えきまで どのくらい かかりますか。", "pron": "에키마데 도노쿠라이 카카리마스카.", "mean": "역까지 얼마나 걸립니까?", "src": "2과 p.33 / 학습지6"}, {"jp": "１０ぷんぐらいです。", "pron": "쥽뿐구라이데스.", "mean": "10분 정도입니다.", "src": "2과 p.33 / 학습지6"}]}, {"title": "⑤ 듣고 말하기 4 - 전화 확인 (교과서 33쪽)", "cards": [{"jp": "もしもし、りこちゃん。", "pron": "모시모시, 리코짱.", "mean": "여보세요, 리코야.", "src": "2과 p.33"}, {"jp": "うん、ソミちゃん。", "pron": "웅, 소미짱.", "mean": "응, 소미야.", "src": "2과 p.33"}, {"jp": "（요일）ようびの （시）じに だよね。", "pron": "（요일）요-비노 （시）지니 다요네.", "mean": "（요일）요일 （시）시 맞지?", "src": "2과 p.33 (빈칸 채우기)"}, {"jp": "うん、そうだよ。", "pron": "웅, 소-다요.", "mean": "응, 맞아.", "src": "2과 p.33"}]}, {"title": "⑥ 듣고 이해하기 - 벚꽃 일기예보 (교과서 34~35쪽 / 학습지7)", "cards": [{"jp": "みなさん、こんばんは。", "pron": "미나상, 콤반와.", "mean": "여러분, 안녕하세요.", "src": "2과 p.35 / 학습지7"}, {"jp": "さいきん、ずっと あたたかいですね。", "pron": "사이킹, 즛토 아타타카이데스네.", "mean": "요즘, 계속 따뜻하네요.", "src": "2과 p.35 / 학습지7"}, {"jp": "ふくおかは もう さくらが みえます。", "pron": "후쿠오카와 모- 사쿠라가 미에마스.", "mean": "후쿠오카는 이미 벚꽃이 보입니다.", "src": "2과 p.35 / 학습지7"}, {"jp": "３がつ１５にちには とうきょうにも さくらが さくでしょう。", "pron": "상가츠 쥬-고니치니와 토-쿄-니모 사쿠라가 사쿠데쇼-.", "mean": "3월 15일에는 도쿄에도 벚꽃이 피겠지요.", "src": "2과 p.35 / 학습지7"}, {"jp": "らいしゅうは はれるでしょう。", "pron": "라이슈-와 하레루데쇼-.", "mean": "다음 주는 맑겠지요.", "src": "2과 p.35 / 학습지7"}, {"jp": "みなさん、しゅうまつに おはなみは どうですか。", "pron": "미나상, 슈-마츠니 오하나미와 도-데스카.", "mean": "여러분, 주말에 꽃구경은 어떻습니까?", "src": "2과 p.35 / 학습지7"}, {"jp": "まだ よるは さむいです。", "pron": "마다 요루와 사무이데스.", "mean": "아직 밤은 춥습니다.", "src": "2과 p.35 / 학습지7"}, {"jp": "うわぎを もって いって ください。", "pron": "우와기오 못테 잇테 쿠다사이.", "mean": "겉옷을 가지고 가 주세요.", "src": "2과 p.35 / 학습지7"}, {"jp": "いじょう、てんきよほうでした。", "pron": "이죠-, 텡키요호-데시타.", "mean": "이상, 일기예보였습니다.", "src": "2과 p.35 / 학습지7"}]}, {"title": "⑦ 41쪽 연습문제 1-①", "cards": [{"jp": "しゅうまつは あめです。", "pron": "슈-마츠와 아메데스.", "mean": "주말은 비입니다.", "src": "2과 p.41 문제1-①"}, {"jp": "おはなみは むりですね。", "pron": "오하나미와 무리데스네.", "mean": "꽃구경은 무리네요.", "src": "2과 p.41 문제1-①"}, {"jp": "そうですか。＿＿＿＿＿＿＿＿。", "pron": "소-데스카. ＿＿＿＿.", "mean": "그래요? ＿＿＿＿（빈칸）.", "src": "2과 p.41 문제1-①"}, {"jp": "ざんねんですね。", "pron": "잔넨데스네.", "mean": "아쉽네요.", "src": "2과 p.41 선택지①"}, {"jp": "さむいですね。", "pron": "사무이데스네.", "mean": "춥네요.", "src": "2과 p.41 선택지②"}, {"jp": "ひさしぶりですね。", "pron": "히사시부리데스네.", "mean": "오랜만이네요.", "src": "2과 p.41 선택지③"}, {"jp": "よかったですね。", "pron": "요캇타데스네.", "mean": "다행이네요.", "src": "2과 p.41 선택지④"}]}, {"title": "⑧ 41쪽 연습문제 1-②", "cards": [{"jp": "こんどの どようび、じかん ありますか。", "pron": "콘도노 도요-비, 지캉 아리마스카.", "mean": "이번 토요일에 시간 있습니까?", "src": "2과 p.41 문제1-②"}, {"jp": "はい、やすみです。", "pron": "하이, 야스미데스.", "mean": "네, 쉽니다(휴일입니다).", "src": "2과 p.41 문제1-②"}, {"jp": "どようび、＿＿＿＿＿＿＿＿。", "pron": "도요-비, ＿＿＿＿.", "mean": "토요일, ＿＿＿＿（빈칸）.", "src": "2과 p.41 문제1-②"}, {"jp": "えいがは どうですか。", "pron": "에-가와 도-데스카.", "mean": "영화는 어떻습니까?", "src": "2과 p.41 선택지①"}, {"jp": "えいがは すきですか。", "pron": "에-가와 스키데스카.", "mean": "영화를 좋아합니까?", "src": "2과 p.41 선택지②"}, {"jp": "どんな えいがが いいですか。", "pron": "돈나 에-가가 이-데스카.", "mean": "어떤 영화가 좋습니까?", "src": "2과 p.41 선택지③"}, {"jp": "えいがの やくそくですか。", "pron": "에-가노 야쿠소쿠데스카.", "mean": "영화 약속입니까?", "src": "2과 p.41 선택지④"}, {"jp": "あ、いいですね。", "pron": "아, 이-데스네.", "mean": "아, 좋네요.", "src": "2과 p.41 문제1-②"}]}, {"title": "⑨ 실화력 다지기 - 관용표현 (교과서 38~39쪽)", "cards": [{"jp": "１ページから １０ページまで しゅくだいです。", "pron": "잇페-지카라 쥬-페-지마데 슈쿠다이데스.", "mean": "1페이지부터 10페이지까지 숙제입니다.", "src": "2과 p.38"}, {"jp": "はい、わかりました。", "pron": "하이, 와카리마시타.", "mean": "네, 알겠습니다.", "src": "2과 p.38"}, {"jp": "じゃ、あした、１０じに えきで！", "pron": "쟈, 아시타, 쥬-지니 에키데!", "mean": "그럼, 내일, 10시에 역에서!", "src": "2과 p.38"}, {"jp": "りょうかい！", "pron": "료-카이!", "mean": "알았음!", "src": "2과 p.38"}, {"jp": "えー、かわいい！うれしい！", "pron": "에-, 카와이-! 우레시-!", "mean": "어머, 귀엽다! 기쁘다!", "src": "2과 p.39"}, {"jp": "わあ、すごい！", "pron": "와-, 스고이!", "mean": "와, 대단하다!", "src": "2과 p.39"}]}, {"title": "⑩ 학습지 고유 표현 - 날짜·요일·시간 (학습지5, 학습지6)", "cards": [{"jp": "〇〇さんの たんじょうびは いつですか。", "pron": "마루마루상노 탄죠-비와 이츠데스카.", "mean": "○○ 씨의 생일은 언제입니까?", "src": "학습지5"}, {"jp": "きょうは ９月４日 金曜日です。", "pron": "쿄-와 쿠가츠 욕카 킹요-비데스.", "mean": "오늘은 9월 4일 금요일입니다.", "src": "학습지5"}, {"jp": "きのうは 何日でしたか。", "pron": "키노-와 난니치데시타카.", "mean": "어제는 며칠이었습니까?", "src": "학습지5"}, {"jp": "あしたは 何日ですか。", "pron": "아시타와 난니치데스카.", "mean": "내일은 며칠입니까?", "src": "학습지5"}, {"jp": "こんどの（시기）、（활동）は どうですか。", "pron": "콘도노（시기）,（활동）와 도-데스카.", "mean": "이번（시기）,（활동）은 어떻습니까?", "src": "학습지5 응용 말하기"}, {"jp": "いいですね。 あ、すみません、（이유）が あります。", "pron": "이-데스네. 아, 스미마셍,（이유）가 아리마스.", "mean": "좋네요. 아, 죄송합니다,（이유）가 있습니다.", "src": "학습지5 응용 말하기"}, {"jp": "そうですか。ざんねんですね。", "pron": "소-데스카. 잔넨데스네.", "mean": "그래요. 아쉽네요.", "src": "학습지5 응용 말하기"}, {"jp": "いま、なんじですか。", "pron": "이마, 난지데스카.", "mean": "지금 몇 시입니까?", "src": "학습지6"}, {"jp": "東京駅から 東京タワーまで でんしゃで ５ふん、あるいて １６ぷんぐらい かかります。", "pron": "토-쿄-에키카라 토-쿄-타와-마데 덴샤데 고훈, 아루이테 쥬-롭뿐구라이 카카리마스.", "mean": "도쿄역에서 도쿄타워까지 전철로 5분, 걸어서 16분 정도 걸립니다.", "src": "학습지6"}, {"jp": "（さむい／あつい／あめ）ですよ。（소지품）を もって いって ください。", "pron": "（사무이／아츠이／아메）데스요.（소지품）오 못테 잇테 쿠다사이.", "mean": "（춥다／덥다／비） 예요. （소지품）을 가지고 가 주세요.", "src": "학습지7 조언하기 연습"}]}], "새단어": [{"title": "① 학습지5 새단어 (날짜·요일·제안)", "cards": [{"jp": "ちかく", "pron": "치카쿠", "mean": "근처", "src": ""}, {"jp": "ねえねえ", "pron": "네에네에", "mean": "있잖아(부를 때)", "src": ""}, {"jp": "はなみ", "pron": "하나미", "mean": "꽃구경", "src": ""}, {"jp": "ざんねんだね", "pron": "잔넨다네", "mean": "아쉽네", "src": ""}, {"jp": "できますか", "pron": "데키마스카", "mean": "가능한가요?", "src": ""}, {"jp": "できる", "pron": "데키루", "mean": "할 수 있다", "src": ""}, {"jp": "しゅうまつ", "pron": "슈-마츠", "mean": "주말", "src": ""}, {"jp": "やすみじかん", "pron": "야스미지칸", "mean": "쉬는 시간", "src": ""}, {"jp": "バイト", "pron": "바이토", "mean": "아르바이트", "src": ""}, {"jp": "ぶかつ", "pron": "부카츠", "mean": "동아리", "src": ""}, {"jp": "じゅぎょう", "pron": "쥬교-", "mean": "수업", "src": ""}, {"jp": "しけん", "pron": "시켕", "mean": "시험", "src": ""}, {"jp": "しゅくだい", "pron": "슈쿠다이", "mean": "숙제", "src": ""}, {"jp": "バイト", "pron": "바이토", "mean": "알바", "src": ""}, {"jp": "やくそく", "pron": "야쿠소쿠", "mean": "약속", "src": ""}, {"jp": "はなみ", "pron": "하나미", "mean": "꽃구경", "src": ""}, {"jp": "カラオケ", "pron": "카라오케", "mean": "노래방", "src": ""}, {"jp": "えいが", "pron": "에-가", "mean": "영화", "src": ""}, {"jp": "コンサート", "pron": "콘사-토", "mean": "콘서트", "src": ""}, {"jp": "りょこう", "pron": "료코-", "mean": "여행", "src": ""}, {"jp": "ショッピング", "pron": "숍핑구", "mean": "쇼핑", "src": ""}, {"jp": "日曜日", "pron": "니치요-비", "mean": "일요일", "src": ""}, {"jp": "月曜日", "pron": "게츠요-비", "mean": "월요일", "src": ""}, {"jp": "火曜日", "pron": "카요-비", "mean": "화요일", "src": ""}, {"jp": "水曜日", "pron": "스이요-비", "mean": "수요일", "src": ""}, {"jp": "木曜日", "pron": "모쿠요-비", "mean": "목요일", "src": ""}, {"jp": "金曜日", "pron": "킹요-비", "mean": "금요일", "src": ""}, {"jp": "土曜日", "pron": "도요-비", "mean": "토요일", "src": ""}, {"jp": "週末", "pron": "슈-마츠", "mean": "주말", "src": ""}]}, {"title": "② 학습지6 새단어 (시간·확인)", "cards": [{"jp": "おそい", "pron": "오소이", "mean": "늦다", "src": ""}, {"jp": "まにあって", "pron": "마니앗테", "mean": "시간에 대서, 늦지 않아서 (기본형 まにあう)", "src": ""}, {"jp": "りょうかい", "pron": "료-카이", "mean": "알았음", "src": ""}, {"jp": "ゆっくり", "pron": "육쿠리", "mean": "천천히", "src": ""}, {"jp": "よかった", "pron": "요캇타", "mean": "다행이다", "src": ""}, {"jp": "コンビニ", "pron": "콤비니", "mean": "편의점", "src": ""}, {"jp": "としょかん", "pron": "토쇼캉", "mean": "도서관", "src": ""}, {"jp": "えいがかん", "pron": "에-가캉", "mean": "영화관", "src": ""}, {"jp": "びょういん", "pron": "뵤-잉", "mean": "병원", "src": ""}]}, {"title": "③ 학습지7 새단어 (날씨·일기예보)", "cards": [{"jp": "さいきん", "pron": "사이킹", "mean": "최근, 요즘", "src": ""}, {"jp": "ずっと", "pron": "즛토", "mean": "계속", "src": ""}, {"jp": "もう", "pron": "모-", "mean": "이미, 벌써", "src": ""}, {"jp": "まだ", "pron": "마다", "mean": "아직", "src": ""}, {"jp": "みえる", "pron": "미에루", "mean": "보이다", "src": ""}, {"jp": "さく", "pron": "사쿠", "mean": "(꽃이) 피다", "src": ""}, {"jp": "らいしゅう", "pron": "라이슈-", "mean": "다음 주", "src": ""}, {"jp": "よる", "pron": "요루", "mean": "저녁, 밤", "src": ""}, {"jp": "うわぎ", "pron": "우와기", "mean": "겉옷", "src": ""}, {"jp": "もって いって", "pron": "못테 잇테", "mean": "가지고 가(요)", "src": ""}, {"jp": "てんきよほう", "pron": "텡키요호-", "mean": "일기예보", "src": ""}, {"jp": "はれ", "pron": "하레", "mean": "맑음", "src": ""}, {"jp": "くもり", "pron": "쿠모리", "mean": "흐림", "src": ""}, {"jp": "ゆき", "pron": "유키", "mean": "눈", "src": ""}, {"jp": "あめ", "pron": "아메", "mean": "비", "src": ""}, {"jp": "あたたかい", "pron": "아타타카이", "mean": "따뜻하다", "src": ""}, {"jp": "あつい", "pron": "아츠이", "mean": "덥다", "src": ""}, {"jp": "すずしい", "pron": "스즈시-", "mean": "시원하다", "src": ""}, {"jp": "さむい", "pron": "사무이", "mean": "춥다", "src": ""}, {"jp": "てぶくろ", "pron": "테부쿠로", "mean": "장갑", "src": ""}, {"jp": "ぼうし", "pron": "보-시", "mean": "모자", "src": ""}, {"jp": "ハンカチ", "pron": "항카치", "mean": "손수건", "src": ""}, {"jp": "かさ", "pron": "카사", "mean": "우산", "src": ""}]}, {"title": "④ 교과서 1과 새단어 (24~25쪽 관련)", "cards": [{"jp": "しゅみ", "pron": "슈미", "mean": "취미", "src": ""}, {"jp": "なに", "pron": "나니", "mean": "무엇", "src": ""}, {"jp": "うた", "pron": "우타", "mean": "노래", "src": ""}, {"jp": "きく", "pron": "키쿠", "mean": "듣다", "src": ""}, {"jp": "こと", "pron": "코토", "mean": "것, 일", "src": ""}, {"jp": "〜かな", "pron": "〜카나", "mean": "〜일까?, 〜이려나?", "src": ""}, {"jp": "どんな", "pron": "돈나", "mean": "어떤", "src": ""}, {"jp": "すき", "pron": "스키", "mean": "좋아함", "src": ""}, {"jp": "アニメソング", "pron": "아니메송구", "mean": "애니메이션 노래", "src": ""}, {"jp": "〜とか", "pron": "〜토카", "mean": "〜라든지", "src": ""}, {"jp": "ロック", "pron": "록쿠", "mean": "록(음악)", "src": ""}, {"jp": "じょうずに", "pron": "죠-즈니", "mean": "잘, 능숙하게", "src": ""}, {"jp": "うたう", "pron": "우타우", "mean": "노래하다", "src": ""}, {"jp": "〜ために", "pron": "〜타메니", "mean": "〜하기 위해", "src": ""}, {"jp": "れんしゅう", "pron": "렌슈-", "mean": "연습", "src": ""}, {"jp": "りゅうがくせい", "pron": "류-가쿠세-", "mean": "유학생", "src": ""}, {"jp": "こちらこそ", "pron": "코치라코소", "mean": "저야말로", "src": ""}, {"jp": "ゲーム", "pron": "게-무", "mean": "게임", "src": ""}, {"jp": "りょこう", "pron": "료코-", "mean": "여행", "src": ""}]}, {"title": "⑤ 교과서 2과 새단어 (전체)", "cards": [{"jp": "あります", "pron": "아리마스", "mean": "있습니다 (기본형 ある)", "src": ""}, {"jp": "きいて みて ください", "pron": "키이테 미테 쿠다사이", "mean": "물어보세요, 물어봐 주세요", "src": ""}, {"jp": "どうしよう", "pron": "도-시요-", "mean": "어떻게 하지?", "src": ""}, {"jp": "やくそく", "pron": "야쿠소쿠", "mean": "약속", "src": ""}, {"jp": "じ", "pron": "지", "mean": "시(時)", "src": ""}, {"jp": "えき", "pron": "에키", "mean": "역", "src": ""}, {"jp": "〜まで", "pron": "〜마데", "mean": "〜까지", "src": ""}, {"jp": "どのくらい", "pron": "도노쿠라이", "mean": "얼마나, 어느 정도", "src": ""}, {"jp": "かかる", "pron": "카카루", "mean": "걸리다", "src": ""}, {"jp": "ふん／ぷん", "pron": "훈／뿐", "mean": "분(分)", "src": ""}, {"jp": "きれい", "pron": "키레-", "mean": "예쁘다", "src": ""}, {"jp": "すごい", "pron": "스고이", "mean": "굉장해", "src": ""}, {"jp": "すいようび", "pron": "스이요-비", "mean": "수요일", "src": ""}, {"jp": "どうですか", "pron": "도-데스카", "mean": "어떻습니까?, 어때요?", "src": ""}, {"jp": "いえ", "pron": "이에", "mean": "집", "src": ""}, {"jp": "がっこう", "pron": "각코-", "mean": "학교", "src": ""}, {"jp": "じかん", "pron": "지칸", "mean": "시간", "src": ""}, {"jp": "もしもし", "pron": "모시모시", "mean": "여보세요", "src": ""}, {"jp": "あたたかい", "pron": "아타타카이", "mean": "따뜻하다", "src": ""}, {"jp": "ふくおか", "pron": "후쿠오카", "mean": "후쿠오카(지명)", "src": ""}, {"jp": "さくら", "pron": "사쿠라", "mean": "벚꽃", "src": ""}, {"jp": "とうきょう", "pron": "토-쿄-", "mean": "도쿄(지명)", "src": ""}, {"jp": "〜でしょう", "pron": "〜데쇼-", "mean": "〜겠지요", "src": ""}, {"jp": "はれる", "pron": "하레루", "mean": "맑다, 개다", "src": ""}, {"jp": "あした", "pron": "아시타", "mean": "내일", "src": ""}]}]};
+const TAB_META = {"1과 문장": {"label": "1과 문장", "sub": "どうぞ よろしく", "accent": "sakura"}, "2과 문장": {"label": "2과 문장", "sub": "おはなみは どう？", "accent": "moss"}, "새단어": {"label": "새단어", "sub": "たんご", "accent": "gold"}};
+const TAB_ORDER = ["1과 문장", "2과 문장", "새단어"];
+
+let state = {
+  tab: TAB_ORDER[0],
+  sectionIndex: 0, // -1 means "전체"
+  deck: [],        // current flat list of {jp,pron,mean,src}
+  idx: 0,
+  flipped: false,
+  shuffled: false,
+  showPron: false,
+};
+
+const el = (id) => document.getElementById(id);
+
+function buildTabs(){
+  const wrap = el('tabs');
+  wrap.innerHTML = '';
+  TAB_ORDER.forEach(name => {
+    const meta = TAB_META[name];
+    const btn = document.createElement('button');
+    btn.className = 'tab';
+    btn.dataset.tab = name;
+    btn.dataset.active = (name === state.tab) ? 'true' : 'false';
+    btn.innerHTML = meta.label + '<span class="tab-sub">' + meta.sub + '</span>';
+    btn.addEventListener('click', () => switchTab(name));
+    wrap.appendChild(btn);
+  });
+}
+
+function switchTab(name){
+  state.tab = name;
+  state.sectionIndex = -1;
+  state.shuffled = false;
+  el('shuffleBtn').setAttribute('aria-pressed', 'false');
+  document.body.setAttribute('data-accent', TAB_META[name].accent);
+  document.querySelectorAll('.tab').forEach(b => {
+    b.dataset.active = (b.dataset.tab === name) ? 'true' : 'false';
+  });
+  buildSectionSelect();
+  rebuildDeck();
+  renderCard();
+}
+
+function buildSectionSelect(){
+  const sel = el('sectionSelect');
+  sel.innerHTML = '';
+  const optAll = document.createElement('option');
+  optAll.value = -1;
+  const total = DATA[state.tab].reduce((s,sec)=>s+sec.cards.length,0);
+  optAll.textContent = '전체 보기 (' + total + '장)';
+  sel.appendChild(optAll);
+  DATA[state.tab].forEach((sec, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = (sec.title || ('구간 ' + (i+1))) + ' (' + sec.cards.length + ')';
+    sel.appendChild(opt);
+  });
+  sel.value = state.sectionIndex;
+  sel.onchange = () => {
+    state.sectionIndex = parseInt(sel.value, 10);
+    rebuildDeck();
+    renderCard();
+  };
+}
+
+function shuffleArray(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function rebuildDeck(){
+  const sections = DATA[state.tab];
+  let cards = [];
+  if(state.sectionIndex === -1){
+    sections.forEach(sec => { sec.cards.forEach(c => cards.push(Object.assign({}, c, {sectionTitle: sec.title}))); });
+  } else {
+    const sec = sections[state.sectionIndex];
+    cards = sec.cards.map(c => Object.assign({}, c, {sectionTitle: sec.title}));
+  }
+  state.deck = state.shuffled ? shuffleArray(cards) : cards;
+  state.idx = 0;
+  state.flipped = false;
+}
+
+function renderCard(){
+  const card = el('card');
+  card.classList.remove('flipped');
+  state.flipped = false;
+
+  const total = state.deck.length;
+  if(total === 0){
+    el('jpText').textContent = '카드가 없습니다.';
+    el('pronText').textContent = '';
+    el('meanText').textContent = '';
+    el('miniJp').textContent = '';
+    el('badgeFront').textContent = '';
+    el('counter').textContent = '0 / 0';
+    el('progressFill').style.width = '0%';
+    el('speakBtn').disabled = true;
+    return;
+  }
+  const c = state.deck[state.idx];
+  el('jpText').textContent = c.jp;
+  el('pronText').textContent = c.pron;
+  el('meanText').textContent = c.mean;
+  el('miniJp').textContent = c.jp;
+  el('badgeFront').textContent = c.src ? c.src : (c.sectionTitle || '');
+  el('badgeFront').title = c.src ? c.src : (c.sectionTitle || '');
+  el('counter').textContent = (state.idx+1) + ' / ' + total;
+  el('progressFill').style.width = (((state.idx+1)/total)*100) + '%';
+  el('sectionTag').textContent = c.sectionTitle ? shorten(c.sectionTitle, 18) : '';
+  el('speakBtn').disabled = false;
+  applyPronVisibility();
+
+  el('prevBtn').disabled = (state.idx === 0);
+  el('nextBtn').disabled = (state.idx === total-1);
+}
+
+function shorten(s, n){
+  return s.length > n ? s.slice(0,n)+'…' : s;
+}
+
+function applyPronVisibility(){
+  el('pronText').classList.toggle('concealed', !state.showPron);
+}
+
+function flipCard(){
+  if(state.deck.length === 0) return;
+  state.flipped = !state.flipped;
+  el('card').classList.toggle('flipped', state.flipped);
+}
+
+function goPrev(){
+  if(state.idx > 0){ state.idx--; renderCard(); }
+}
+function goNext(){
+  if(state.idx < state.deck.length-1){ state.idx++; renderCard(); }
+}
+
+/* ---------- Speech ---------- */
+let voicesCache = [];
+function loadVoices(){
+  voicesCache = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
+}
+if('speechSynthesis' in window){
+  loadVoices();
+  window.speechSynthesis.onvoiceschanged = loadVoices;
+} else {
+  el('speakBtn').title = '이 브라우저는 음성 재생을 지원하지 않습니다';
+}
+
+function speakCurrent(){
+  if(!('speechSynthesis' in window)) return;
+  const c = state.deck[state.idx];
+  if(!c) return;
+  const text = c.jp.replace(/＿+/g, '');
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'ja-JP';
+  const jaVoice = voicesCache.find(v => v.lang && v.lang.toLowerCase().startsWith('ja'));
+  if(jaVoice) utter.voice = jaVoice;
+  utter.rate = 0.92;
+  const btn = el('speakBtn');
+  btn.classList.add('playing');
+  utter.onend = () => btn.classList.remove('playing');
+  utter.onerror = () => btn.classList.remove('playing');
+  window.speechSynthesis.speak(utter);
+}
+
+/* ---------- Events ---------- */
+el('card').addEventListener('click', flipCard);
+el('flipBtn').addEventListener('click', flipCard);
+el('prevBtn').addEventListener('click', goPrev);
+el('nextBtn').addEventListener('click', goNext);
+el('resetBtn').addEventListener('click', () => { state.idx = 0; renderCard(); });
+el('shuffleBtn').addEventListener('click', () => {
+  state.shuffled = !state.shuffled;
+  el('shuffleBtn').setAttribute('aria-pressed', state.shuffled ? 'true' : 'false');
+  rebuildDeck();
+  renderCard();
+});
+el('speakBtn').addEventListener('click', (e) => { e.stopPropagation(); speakCurrent(); });
+el('pronToggleBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  state.showPron = !state.showPron;
+  const btn = el('pronToggleBtn');
+  btn.setAttribute('aria-pressed', state.showPron ? 'true' : 'false');
+  btn.textContent = state.showPron ? '발음숨기기' : '발음보기';
+  applyPronVisibility();
+});
+
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'ArrowLeft') goPrev();
+  else if(e.key === 'ArrowRight') goNext();
+  else if(e.key === ' '){ e.preventDefault(); flipCard(); }
+});
+
+/* ---------- Init ---------- */
+buildTabs();
+buildSectionSelect();
+rebuildDeck();
+renderCard();
+</script>
+</body>
+</html>
