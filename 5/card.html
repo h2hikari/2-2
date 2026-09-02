@@ -171,6 +171,14 @@
     box-shadow:0 4px 0 rgba(0,0,0,.25);
   }
   .btn:active{transform:translateY(2px); box-shadow:0 2px 0 rgba(0,0,0,.25)}
+  .btn.two{
+    line-height:1.15; padding-top:9px; padding-bottom:9px;
+    display:inline-flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+  }
+  .btn.two span{
+    display:block; font-size:12px; font-weight:400; opacity:.62; letter-spacing:.02em;
+  }
+  .btn.shu.two span{opacity:.85}
   .btn.ghost{background:transparent; color:var(--kinari); border:1px solid var(--edge); box-shadow:none; font-weight:500}
   .btn.shu{background:var(--shu); color:#fff}
   .btn:disabled{opacity:.35; cursor:default; box-shadow:none}
@@ -451,14 +459,14 @@ function renderMix(){
     <div class="verdict ${judgeMode && mixJudged !== null ? (mixJudged===ok?'ok':'no') : ''}">${
       !judgeMode || mixJudged === null ? '' :
       (mixJudged === ok
-        ? (ok ? 'ほんと！ <small>맞는 조합이에요</small>' : 'うそ！ <small>맞아요, 말이 안 되죠</small>')
-        : (ok ? 'あれ？ <small>사실 이건 맞는 조합이에요</small>' : 'あれ？ <small>이건 좀 이상한데요</small>'))
+        ? (ok ? 'ほんとう！ <small>혼토- · 맞는 조합이에요</small>' : 'うそ！ <small>우소 · 맞아요, 말이 안 되죠</small>')
+        : (ok ? 'あれ？ <small>아레 · 사실 이건 맞는 조합이에요</small>' : 'あれ？ <small>아레 · 이건 좀 이상한데요</small>'))
     }</div>`;
 
   if(judgeMode){
     controls.innerHTML = mixJudged === null
-      ? `<button class="btn" id="hon">ほんと？</button>
-         <button class="btn shu" id="uso">うそ！</button>`
+      ? `<button class="btn two" id="hon">ほんとう？<span>혼토-</span></button>
+         <button class="btn shu two" id="uso">うそ！<span>우소</span></button>`
       : `<button class="btn" id="spin2">다시 뽑기</button>`;
     if(mixJudged === null){
       document.getElementById('hon').onclick = () => { mixJudged = true; render(); };
