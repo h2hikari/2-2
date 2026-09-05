@@ -32,10 +32,18 @@
   │    ko   = 화면 탭 이름                                        │
   │    answer = 카드 위 라벨 두 개, | 로 구분 (예: 주문|나온 것)   │
   │  두 더미는 type 을 a / b 로 적어도 됩니다.                    │
+  │                                                              │
+  │  한 장 뽑기 문장도 세트마다 바꿀 수 있습니다.                 │
+  │    type 에 template1 이라고 적은 줄을 한 줄 넣고,             │
+  │    jp   = 문장 틀   ({A}=카드, {B}=그 카드의 answer)          │
+  │    yomi = 발음 틀   ({a} {b})                                 │
+  │    ko   = 탭 이름                                             │
+  │    answer = 카드 위에 뜰 안내 문구                            │
+  │  도구 더미(b)가 없으면 두 장 뽑기 탭은 자동으로 숨습니다.     │
   └──────────────────────────────────────────────────────────────┘
 -->
 <script>
-  const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS6JrPy2tsUo5ZVFpy1_I8piZtPoWa_U_jY_PRz0l6nffD4pYi3K4eef3bxA02iGaWySrHjerD9g3xK/pub?gid=1752565858&single=true&output=csv';
+  const SHEET_CSV_URL = '';
   const ROUND_SIZE = 8;   // 한 판에 뽑을 카드 장수
 </script>
 
@@ -278,7 +286,17 @@ const BUILTIN = [
   ['5과 2차시 · 주문 참사','b','ステーキ','스테-키','',''],
   ['5과 2차시 · 주문 참사','b','おにぎり','오니기리','',''],
   ['5과 2차시 · 주문 참사','b','ハンバーガー','함바-가-','',''],
-  ['5과 2차시 · 주문 참사','b','そうめん','소멘','','']
+  ['5과 2차시 · 주문 참사','b','そうめん','소멘','',''],
+
+  ['5과 2차시 · 헷갈리는 짝','template1','これ、{B}じゃなくて {A}です。','코레, {b}쟈나쿠테 {a}데스','헷갈리는 짝','これ、なに？',''],
+  ['5과 2차시 · 헷갈리는 짝','food','ヒョウ','효-','표범','チーター','img/hyou.jpg'],
+  ['5과 2차시 · 헷갈리는 짝','food','チーター','치-타-','치타','ヒョウ','img/cheetah.jpg'],
+  ['5과 2차시 · 헷갈리는 짝','food','しお','시오','소금','さとう','img/shio.jpg'],
+  ['5과 2차시 · 헷갈리는 짝','food','さとう','사토-','설탕','しお','img/satou.jpg'],
+  ['5과 2차시 · 헷갈리는 짝','food','しそ','시소','시소(차조기)','エゴマのは','img/shiso.jpg'],
+  ['5과 2차시 · 헷갈리는 짝','food','エゴマのは','에고마노하','깻잎','しそ','img/egoma.jpg'],
+  ['5과 2차시 · 헷갈리는 짝','food','トフン','토훈','도훈','シンユ','img/dohoon.jpg'],
+  ['5과 2차시 · 헷갈리는 짝','food','シンユ','신유','신유','トフン','img/shinyu.jpg']
 ];
 
 /* ── 상태 ─────────────────────────────────────── */
@@ -345,12 +363,28 @@ const pileA = () => inSet().filter(r=>A_TYPES.includes(r[1]));
 const pileB = () => inSet().filter(r=>B_TYPES.includes(r[1]));
 const pick = t => t==='food' ? pileA() : pileB();
 const tmpl = () => inSet().find(r=>r[1]==='template');
+const tmpl1 = () => inSet().find(r=>r[1]==='template1');
+const yomiInA = jp => { const t = pileA().find(r=>r[2]===jp); return t?t[3]:''; };
 const hasAnswers = () => pileA().some(r=>r[5]);
 const pileTags = () => { const t=tmpl(); const parts=(t&&t[5]||'').split('|'); return [ (parts[0]||'').trim(), (parts[1]||'').trim() ]; };
 const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; };
 const yomiOf = jp => { const t = pileB().find(r=>r[2]===jp); return t?t[3]:''; };
 
-// 템플릿으로 문장 만들기. {A}{B}=일본어, {a}{b}=한글 발음
+// 한 장 뽑기 문장. {A}=카드, {B}=그 카드의 정답
+function buildSentence1(card){
+  const t = tmpl1();
+  const jpT = t ? t[2] : '{B}で 食べるんだよ。';
+  const yoT = t ? t[3] : '{b}데 다베룬다요';
+  const B = card[5];
+  const b = yomiOf(B) || yomiInA(B);
+  const fill = (str, map) => str.replace(/\{([AaBb])\}/g, (_, k) => map[k] || '');
+  return {
+    jp: fill(jpT, { A:card[2], B }),
+    yomi: fill(yoT, { a:card[3], b })
+  };
+}
+
+// 두 장 뽑기 문장. {A}{B}=일본어, {a}{b}=한글 발음
 function buildSentence(a, b){
   const t = tmpl();
   const jpT = t ? t[2] : '{A}は {B}で 食べるんだよ。';
@@ -391,12 +425,19 @@ function render(){
   const t = tmpl();
   const quizOK = hasAnswers();
   quizTab.style.display = quizOK ? '' : 'none';
+  const t1 = tmpl1();
+  quizTab.textContent = t1 && t1[4] ? t1[4] : '먹는 법 퀴즈';
   mixTab.textContent = t && t[4] ? t[4] : '도구 뽑기';
+  const mixOK = pileB().length > 0;
+  mixTab.style.display = mixOK ? '' : 'none';
   if(!quizOK) mode = 'mix';
+  if(!mixOK) mode = 'quiz';
   quizTab.setAttribute('aria-selected', mode==='quiz');
   mixTab.setAttribute('aria-selected', mode==='mix');
   mode==='quiz' ? renderQuiz() : renderMix();
 }
+
+const promptOf = () => { const t = tmpl1(); return (t && t[5]) ? t[5] : 'これ、どうやって 食べるの？'; };
 
 function renderQuiz(){
   const total = roundTotal;
@@ -410,17 +451,18 @@ function renderQuiz(){
   }
   if(!current){
     stage.innerHTML = `<div class="counter">이번 판 ${total}장 · 전체 ${pileA().length}장 중에서</div>
-      <div class="placeholder">카드를 뽑아 짝에게 보여 주세요.<br>「これ、どうやって 食べるの？」</div>`;
+      <div class="placeholder">카드를 뽑아 짝에게 보여 주세요.<br>${esc(promptOf())}</div>`;
     controls.innerHTML = `<button class="btn" id="draw">카드 뽑기</button>`;
     document.getElementById('draw').onclick = () => { current = deck.pop(); revealed = false; render(); };
     return;
   }
 
   const answer = current[5];
+  const sent = buildSentence1(current);
   stage.innerHTML = `<div class="counter">${done + 1} / ${total}</div>
-    ${stripHTML(current, { tag:'これ、どうやって 食べるの？', stamp: revealed ? answer : '' })}
-    ${revealed ? `<div class="sentence">${esc(answer)}で 食べるんだよ。
-      <span class="s-yomi">${esc(yomiOf(answer))}데 다베룬다요</span></div>` : ''}`;
+    ${stripHTML(current, { tag: promptOf(), stamp: revealed ? answer : '' })}
+    ${revealed ? `<div class="sentence">${esc(sent.jp)}
+      <span class="s-yomi">${esc(sent.yomi)}</span></div>` : ''}`;
 
   controls.innerHTML = revealed
     ? `<button class="btn" id="next">${deck.length ? '다음 카드' : '결과 보기'}</button>
