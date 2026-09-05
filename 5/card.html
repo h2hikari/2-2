@@ -290,12 +290,12 @@ const BUILTIN = [
 
   ['5과 2차시 · 헷갈리는 짝','template1','これ、{B}じゃなくて {A}です。','코레, {b}쟈나쿠테 {a}데스','헷갈리는 짝','これ、なに？',''],
   ['5과 2차시 · 헷갈리는 짝','food','ヒョウ','효-','표범','チーター','img/hyou.jpg'],
-  ['5과 2차시 · 헷갈리는 짝','food','チーター','치-타-','치타','ヒョウ','img/cheetah.jpg'],
+  ['5과 2차시 · 헷갈리는 짝','food','チーター','치-타-','치타','ヒョウ','img/chita.jpg'],
   ['5과 2차시 · 헷갈리는 짝','food','しお','시오','소금','さとう','img/shio.jpg'],
   ['5과 2차시 · 헷갈리는 짝','food','さとう','사토-','설탕','しお','img/satou.jpg'],
   ['5과 2차시 · 헷갈리는 짝','food','しそ','시소','시소(차조기)','エゴマのは','img/shiso.jpg'],
   ['5과 2차시 · 헷갈리는 짝','food','エゴマのは','에고마노하','깻잎','しそ','img/egoma.jpg'],
-  ['5과 2차시 · 헷갈리는 짝','food','トフン','토훈','도훈','シンユ','img/dohoon.jpg'],
+  ['5과 2차시 · 헷갈리는 짝','food','トフン','토훈','도훈','シンユ','img/dohun.jpg'],
   ['5과 2차시 · 헷갈리는 짝','food','シンユ','신유','신유','トフン','img/shinyu.jpg']
 ];
 
@@ -439,6 +439,22 @@ function render(){
 
 const promptOf = () => { const t = tmpl1(); return (t && t[5]) ? t[5] : 'これ、どうやって 食べるの？'; };
 
+// 정답이 같은 더미 안의 다른 카드를 가리키면 '짝' 세트로 본다
+const partnerOf = card => (card && card[5]) ? pileA().find(r=>r[2]===card[5]) : null;
+
+// 문장 틀에서 카드 사이/뒤에 오는 말을 뽑아 카드 위 라벨로 쓴다
+// 예: 「これ、{B}じゃなくて {A}です。」 → ['じゃなくて', 'です。']
+function pairLabels(){
+  const t = tmpl1();
+  if(!t) return null;
+  const jp = t[2] || '';
+  const order = [];
+  jp.replace(/\{([AB])\}/g, (m, k) => { order.push(k); return m; });
+  if(order.length < 2) return null;
+  const parts = jp.split(/\{[AB]\}/);
+  return { order, mid: (parts[1]||'').trim(), post: (parts[2]||'').trim() };
+}
+
 function renderQuiz(){
   const total = roundTotal;
   const done = total - deck.length - (current?1:0);
@@ -451,7 +467,7 @@ function renderQuiz(){
   }
   if(!current){
     stage.innerHTML = `<div class="counter">이번 판 ${total}장 · 전체 ${pileA().length}장 중에서</div>
-      <div class="placeholder">카드를 뽑아 짝에게 보여 주세요.<br>${esc(promptOf())}</div>`;
+      <div class="placeholder">${partnerOf(deck[deck.length-1]) ? '두 장을 나란히 뽑습니다.<br>고쳐 말해 보세요.' : '카드를 뽑아 짝에게 보여 주세요.<br>' + esc(promptOf())}</div>`;
     controls.innerHTML = `<button class="btn" id="draw">카드 뽑기</button>`;
     document.getElementById('draw').onclick = () => { current = deck.pop(); revealed = false; render(); };
     return;
@@ -459,15 +475,31 @@ function renderQuiz(){
 
   const answer = current[5];
   const sent = buildSentence1(current);
-  stage.innerHTML = `<div class="counter">${done + 1} / ${total}</div>
-    ${stripHTML(current, { tag: promptOf(), stamp: revealed ? answer : '' })}
-    ${revealed ? `<div class="sentence">${esc(sent.jp)}
-      <span class="s-yomi">${esc(sent.yomi)}</span></div>` : ''}`;
+  const partner = partnerOf(current);
+  const L = partner ? pairLabels() : null;
+
+  if(partner && L){
+    // 짝 세트 : 두 장을 나란히 보여 준다
+    const first  = L.order[0] === 'A' ? current : partner;
+    const second = L.order[0] === 'A' ? partner : current;
+    stage.innerHTML = `<div class="counter">${done + 1} / ${total}</div>
+      <div class="strip-row">
+        ${stripHTML(first,  { small:true, tag:L.mid })}
+        ${stripHTML(second, { small:true, tag:L.post })}
+      </div>
+      ${revealed ? `<div class="sentence">${esc(sent.jp)}
+        <span class="s-yomi">${esc(sent.yomi)}</span></div>` : ''}`;
+  } else {
+    stage.innerHTML = `<div class="counter">${done + 1} / ${total}</div>
+      ${stripHTML(current, { tag: promptOf(), stamp: revealed ? answer : '' })}
+      ${revealed ? `<div class="sentence">${esc(sent.jp)}
+        <span class="s-yomi">${esc(sent.yomi)}</span></div>` : ''}`;
+  }
 
   controls.innerHTML = revealed
     ? `<button class="btn" id="next">${deck.length ? '다음 카드' : '결과 보기'}</button>
        <button class="btn ghost" id="reshuffle">처음부터</button>`
-    : `<button class="btn shu" id="flip">뒤집어서 확인</button>`;
+    : `<button class="btn shu" id="flip">${partner ? '문장 확인' : '뒤집어서 확인'}</button>`;
 
   if(revealed){
     document.getElementById('next').onclick = () => { current = deck.length ? deck.pop() : null; revealed = false; if(!deck.length && !current) current=null; render(); };
