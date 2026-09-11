@@ -177,6 +177,11 @@
   }
   .sentence .s-yomi{display:block; font-family:var(--kr); font-size:15px; color:#E9DFC9; opacity:.8; margin-top:9px; letter-spacing:.01em}
 
+  .hint{
+    font-family:var(--kr); font-size:13px; color:#C9BFA9; text-align:center;
+    background:var(--ai-2); border:1px solid var(--edge); border-radius:2px;
+    padding:8px 16px;
+  }
   .verdict{font-family:var(--jp); font-size:20px; min-height:30px; text-align:center}
   .verdict.ok{color:#9CCB7E} .verdict.no{color:#F09A86}
   .verdict small{display:block; font-family:var(--kr); font-size:13px; opacity:.75; margin-top:2px}
@@ -368,25 +373,25 @@ const BUILTIN = [
   ['6과 · ないで 제지하기','food','ひみつを いう','히미츠오 이우','말하다 · 친구','ひみつ、言わないで！|히미츠, 이와나이데','/2-2/6/img/n8_iu.jpg'],
   ['6과 · ないで 제지하기','food','ひみつを いう','히미츠오 이우','말하다 · 어른','ひみつ、言わないで ください。|히미츠, 이와나이데 쿠다사이','/2-2/6/img/n8_iu.jpg'],
 
-  ['6과 · ても いいですか','template','{A} いいですか。  ➩  {B}','{a} 이-데스카   ➩   {b}','ても いいですか','하고 싶은 일|점원의 대답',''],
-  ['6과 · ても いいですか','a','しゃしんを とっても','샤신오 톳테모','사진을 찍다','','/2-2/6/img/t1_shashin.jpg'],
-  ['6과 · ても いいですか','a','ここに すわっても','코코니 스왓테모','여기 앉다','','/2-2/6/img/t2_suwaru.jpg'],
-  ['6과 · ても いいですか','a','ここで 飲んでも','코코데 논데모','여기서 마시다','','/2-2/6/img/t3_nomu.jpg'],
-  ['6과 · ても いいですか','a','カードで はらっても','카-도데 하랏테모','카드로 계산하다','','/2-2/6/img/t4_card.jpg'],
-  ['6과 · ても いいですか','a','ドアを 開けても','도아오 아케테모','문을 열다','','/2-2/6/img/t5_akeru.jpg'],
-  ['6과 · ても いいですか','a','ここに 乗っても','코코니 놋테모','여기 타다','','/2-2/6/img/t6_noru.jpg'],
-  ['6과 · ても いいですか','b','○  はい、いいですよ。','하이, 이-데스요','괜찮아요','',''],
-  ['6과 · ても いいですか','b','○  はい、どうぞ。','하이, 도-조','그러세요','',''],
-  ['6과 · ても いいですか','b','○  ええ、いいですよ。','에-, 이-데스요','네, 되세요','',''],
-  ['6과 · ても いいですか','b','×  すみません、ちょっと……。','스미마셍, 촛토','죄송한데요, 좀……','',''],
-  ['6과 · ても いいですか','b','×  すみません、ちょっと……。','스미마셍, 촛토 ','죄송한데요, 좀……','',''],
-  ['6과 · ても いいですか','b','×  いえ、ちょっと……。','이에, 촛토','아뇨, 좀……','','']
+  ['6과 · ても いいですか','template','{A} いいですか。','{a} 이-데스카','ても いいですか','하고 싶은 일|점원의 대답',''],
+  ['6과 · ても いいですか','a','しゃしんを とる','샤신오 토루','사진을 찍다','1류 (る➩って)::しゃしんを とっても::샤신오 톳테모','/2-2/6/img/t1_shashin.jpg'],
+  ['6과 · ても いいですか','a','ここに すわる','코코니 스와루','여기 앉다','1류 (る➩って)::ここに すわっても::코코니 스왓테모','/2-2/6/img/t2_suwaru.jpg'],
+  ['6과 · ても いいですか','a','ここで のむ','코코데 노무','여기서 마시다','1류 (む➩んで)::ここで 飲んでも::코코데 논데모','/2-2/6/img/t3_nomu.jpg'],
+  ['6과 · ても いいですか','a','カードで はらう','카-도데 하라우','카드로 계산하다','1류 (う➩って)::カードで はらっても::카-도데 하랏테모','/2-2/6/img/t4_card.jpg'],
+  ['6과 · ても いいですか','a','ドアを あける','도아오 아케루','문을 열다','2류 (る➩て)::ドアを 開けても::도아오 아케테모','/2-2/6/img/t5_akeru.jpg'],
+  ['6과 · ても いいですか','a','ここに のる','코코니 노루','여기 타다','1류 (る➩って)::ここに 乗っても::코코니 놋테모','/2-2/6/img/t6_noru.jpg'],
+  ['6과 · ても いいですか','b','○','','','はい、いいですよ。::하이, 이-데스요',''],
+  ['6과 · ても いいですか','b','○','','','はい、どうぞ。::하이, 도-조',''],
+  ['6과 · ても いいですか','b','○','','','ええ、いいですよ。::에-, 이-데스요',''],
+  ['6과 · ても いいですか','b','×','','','すみません、ちょっと……。::스미마셍, 촛토',''],
+  ['6과 · ても いいですか','b','×','','','いえ、ちょっと……。::이에, 촛토',''],
+  ['6과 · ても いいですか','b','×','','','すみません、いま ちょっと……。::스미마셍, 이마 촛토',''],
 ];
 
 /* ── 상태 ─────────────────────────────────────── */
 let rows = [], setName = '', mode = 'quiz';
 let deck = [], current = null, revealed = false, roundTotal = 0;
-let mixFood = null, mixTool = null, mixJudged = null;
+let mixFood = null, mixTool = null, mixJudged = null, mixHint = false;
 
 const stage = document.getElementById('stage');
 const controls = document.getElementById('controls');
@@ -456,10 +461,21 @@ const pick = t => t==='food' ? pileA() : pileB();
 const tmpl = () => inSet().find(r=>r[1]==='template');
 const tmpl1 = () => inSet().find(r=>r[1]==='template1');
 const yomiInA = jp => { const t = pileA().find(r=>r[2]===jp); return t?t[3]:''; };
-const hasAnswers = () => pileA().some(r=>r[5]);
+const hasAnswers = () => pileA().some(r=>r[5] && !r[5].includes('::'));
 const pileTags = () => { const t=tmpl(); const parts=(t&&t[5]||'').split('|'); return [ (parts[0]||'').trim(), (parts[1]||'').trim() ]; };
 const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; };
 const yomiOf = jp => { const t = pileB().find(r=>r[2]===jp); return t?t[3]:''; };
+
+// 두 장 뽑기용 카드 조각 뽑기.
+// answer(6번째 값)에 '::' 이 있으면 "힌트::문장조각::발음" 형식으로 보고 그걸 쓰고,
+// 없으면 카드 자체(jp/yomi)를 그대로 쓴다.
+function pieceOf(card){
+  const raw = (card && card[5]) || '';
+  const parts = raw.split('::');
+  if(parts.length >= 3) return { hint: parts[0].trim(), jp: parts[1].trim(), yomi: parts[2].trim() };
+  if(parts.length === 2) return { hint: '', jp: parts[0].trim(), yomi: parts[1].trim() };
+  return { hint: '', jp: card[2], yomi: card[3] };
+}
 
 // 한 장 뽑기 문장. {A}=카드, {B}=그 카드의 정답
 function buildSentence1(card){
@@ -476,14 +492,26 @@ function buildSentence1(card){
 }
 
 // 두 장 뽑기 문장. {A}{B}=일본어, {a}{b}=한글 발음
+// 템플릿에 {B}가 없으면 A만으로 질문을 만들고, B(대답 카드)는 그 자체를 두 번째 줄로 보여 준다.
 function buildSentence(a, b){
   const t = tmpl();
   const jpT = t ? t[2] : '{A}は {B}で 食べるんだよ。';
   const yoT = t ? t[3] : '{a}와 {b}데 다베룬다요';
+  const pa = pieceOf(a), pb = pieceOf(b);
   const fill = (str, map) => str.replace(/\{([AaBb])\}/g, (_, k) => map[k] || '');
+  if(!/\{B\}/.test(jpT)){
+    return {
+      twoLine: true,
+      line1: fill(jpT, { A:pa.jp, a:pa.yomi }),
+      line1y: fill(yoT, { a:pa.yomi }),
+      line2: pb.jp,
+      line2y: pb.yomi
+    };
+  }
   return {
-    jp: fill(jpT, { A:a[2], B:b[2] }),
-    yomi: fill(yoT, { a:a[3], b:b[3] })
+    twoLine: false,
+    jp: fill(jpT, { A:pa.jp, B:pb.jp }),
+    yomi: fill(yoT, { a:pa.yomi, b:pb.yomi })
   };
 }
 const esc = s => (s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
@@ -493,7 +521,7 @@ function reset(){
   roundTotal = Math.min(ROUND, all.length);
   deck = all.slice(0, roundTotal);
   current = null; revealed = false;
-  mixFood = mixTool = mixJudged = null;
+  mixFood = mixTool = mixJudged = null; mixHint = false;
   render();
 }
 
@@ -621,14 +649,22 @@ function renderMix(){
   const ok = mixFood[5] === mixTool[2];
   const sent = buildSentence(mixFood, mixTool);
   const showSentence = judgeMode || mixJudged !== null;
+  const pa = pieceOf(mixFood);
+  const showHint = !judgeMode && pa.hint && mixJudged === null;
+
+  const sentenceHTML = !showSentence ? '' :
+    sent.twoLine
+      ? `<div class="sentence">${esc(sent.line1)}<span class="s-yomi">${esc(sent.line1y)}</span></div>
+         <div class="sentence">${esc(sent.line2)}<span class="s-yomi">${esc(sent.line2y)}</span></div>`
+      : `<div class="sentence">${esc(sent.jp)}<span class="s-yomi">${esc(sent.yomi)}</span></div>`;
 
   stage.innerHTML = `
     <div class="strip-row">
       ${stripHTML(mixFood,{small:true, tag:tags[0]})}
       ${stripHTML(mixTool,{small:true, tag:tags[1]})}
     </div>
-    ${showSentence ? `<div class="sentence">${esc(sent.jp)}
-      <span class="s-yomi">${esc(sent.yomi)}</span></div>` : ''}
+    ${showHint && mixHint ? `<div class="hint">${esc(pa.hint)}</div>` : ''}
+    ${sentenceHTML}
     <div class="verdict ${judgeMode && mixJudged !== null ? (mixJudged===ok?'ok':'no') : ''}">${
       !judgeMode || mixJudged === null ? '' :
       (mixJudged === ok
@@ -648,11 +684,13 @@ function renderMix(){
       document.getElementById('spin2').onclick = spin;
     }
   } else {
+    const hintBtn = showHint ? `<button class="btn ghost" id="hint">${mixHint ? '힌트 숨기기' : '힌트 보기'}</button>` : '';
     controls.innerHTML = mixJudged === null
-      ? `<button class="btn shu" id="reveal">문장 확인</button>`
+      ? hintBtn + `<button class="btn shu" id="reveal">문장 확인</button>`
       : `<button class="btn" id="spin2">다시 뽑기</button>`;
     if(mixJudged === null){
       document.getElementById('reveal').onclick = () => { mixJudged = true; render(); };
+      if(showHint) document.getElementById('hint').onclick = () => { mixHint = !mixHint; render(); };
     } else {
       document.getElementById('spin2').onclick = spin;
     }
@@ -666,7 +704,7 @@ function spin(){
   // 같은 것이 두 장 나오면 문장이 성립하지 않으므로 다시 뽑음
   let guard = 0;
   while(mixFood[2] === mixTool[2] && t.length > 1 && guard++ < 20) mixTool = r(t);
-  mixJudged = null;
+  mixJudged = null; mixHint = false;
   render();
 }
 
