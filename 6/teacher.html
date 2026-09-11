@@ -169,8 +169,21 @@
 </div>
 
 <script>
-/* ── 내장 세트 (시트를 연결하지 않았을 때 쓰는 목록) ──
-   card.html 을 직접 읽어 세트 이름을 뽑아내므로 보통은 자동으로 채워집니다. */
+/* ── 내장 세트 목록 ──
+   card.html 이나 시트를 읽지 못해도 이 목록으로 동작합니다.
+   세트를 새로 만드시면 여기에 한 줄 추가해 주세요.  '세트 이름': 카드 장수  */
+const SET_LIST = {
+  '5과 · 활동 카드': 36,
+  '3차시 · 교과서 음식': 11,
+  '5과 2차시 · 주문 참사': 12,
+  '5과 2차시 · 헷갈리는 짝': 8,
+  '5과 · 총정리': 12,
+  '6과 맛보기 · どっちが 早い？': 12,
+  '6과 맛보기 · どっちが 安い？': 12,
+  '6과 · ないで 제지하기': 8,
+  '6과 · ても いいですか': 12
+};
+
 let SETS = [];
 
 const $ = id => document.getElementById(id);
@@ -190,8 +203,9 @@ function parseCSV(text){
   return out.filter(r=>r.some(v=>v.trim()!==''));
 }
 
-/* 세트 목록 모으기 : 시트 → 실패하면 card.html 안의 내장 카드 */
+/* 세트 목록 모으기 : 시트 → card.html → 내장 목록 */
 async function collect(){
+  // 1) 구글 시트
   if(SHEET_CSV_URL){
     try{
       const res = await fetch(SHEET_CSV_URL);
@@ -202,33 +216,42 @@ async function collect(){
       const counts = {};
       tb.slice(1).forEach(r=>{
         const nm = (r[si]||'').trim(); const tp = (r[ti]||'').trim();
-        if(!nm || tp.startsWith('template')) return;
+        if(!nm || tp.indexOf('template') === 0) return;
         counts[nm] = (counts[nm]||0) + 1;
       });
       if(Object.keys(counts).length){
         msg('시트에서 세트 ' + Object.keys(counts).length + '개를 불러왔습니다.');
         return counts;
       }
-    }catch(e){ /* 아래로 */ }
+    }catch(e){ /* 다음으로 */ }
   }
+
+  // 2) 같은 폴더의 학생용 페이지
   try{
-    const res = await fetch(STUDENT_PAGE);
-    const txt = await res.text();
-    const m = txt.match(/const BUILTIN = \[([\s\S]*?)\n\];/);
-    if(!m) throw 0;
+    const res = await fetch(STUDENT_PAGE, { cache: 'no-store' });
+    if(!res.ok) throw 0;
+    const txt = (await res.text()).replace(/\r/g, '');
+    const i = txt.indexOf('BUILTIN');
+    if(i < 0) throw 0;
+    const end = txt.indexOf('\n];', i);
+    const body = txt.slice(i, end < 0 ? undefined : end);
     const counts = {};
-    m[1].split('\n').forEach(line=>{
-      const f = line.match(/\[\s*'([^']*)'\s*,\s*'([^']*)'/);
-      if(!f) return;
-      if(f[2].startsWith('template')) return;
-      counts[f[1]] = (counts[f[1]]||0) + 1;
-    });
-    msg(STUDENT_PAGE + ' 의 내장 카드에서 세트 ' + Object.keys(counts).length + '개를 읽었습니다.');
-    return counts;
-  }catch(e){
-    msg('세트 목록을 읽지 못했습니다. ' + STUDENT_PAGE + ' 이 같은 폴더에 있는지 확인해 주세요.', true);
-    return {};
-  }
+    const re = /\[\s*'([^']*)'\s*,\s*'([^']*)'/g;
+    let m;
+    while((m = re.exec(body)) !== null){
+      if(m[2].indexOf('template') === 0) continue;
+      if(!['food','tool','a','b','pile1','pile2'].includes(m[2])) continue;
+      counts[m[1]] = (counts[m[1]]||0) + 1;
+    }
+    if(Object.keys(counts).length){
+      msg(STUDENT_PAGE + ' 에서 세트 ' + Object.keys(counts).length + '개를 읽었습니다.');
+      return counts;
+    }
+  }catch(e){ /* 다음으로 */ }
+
+  // 3) 내장 목록
+  msg('이 페이지에 적어 둔 목록으로 표시합니다. (' + Object.keys(SET_LIST).length + '개)');
+  return Object.assign({}, SET_LIST);
 }
 
 function drawSets(counts){
