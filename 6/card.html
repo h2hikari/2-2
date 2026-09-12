@@ -5,52 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>どうやって 食べるの？ — 카드 뽑기</title>
 
-<!--
-  ┌──────────────────────────────────────────────────────────────┐
-  │  설정: 아래 SHEET_CSV_URL 한 줄만 바꾸면 됩니다.              │
-  │                                                              │
-  │  1. 구글 시트에 카드 목록을 만듭니다.                        │
-  │     (동봉한 카드목록.csv 를 그대로 가져오기 하면 됩니다)     │
-  │  2. 파일 > 공유 > 웹에 게시 > 시트 선택 > 쉼표로 구분된 값   │
-  │  3. 나온 주소를 아래에 붙여넣습니다.                         │
-  │                                                              │
-  │  비워 두면 이 파일에 내장된 5과 카드로 동작합니다.           │
-  │                                                              │
-  │  ROUND_SIZE 는 한 판에 뽑을 카드 장수입니다.                  │
-  │    카드가 아무리 많아도 한 판은 이 장수만큼만 돌고,           │
-  │    「다시 섞기」를 누르면 다른 카드가 나옵니다.                │
-  │                                                              │
-  │  사진: 시트의 img 열에 주소를 적으면 카드에 사진이 붙습니다.  │
-  │        같은 저장소에 img 폴더를 만들어 두고                   │
-  │        img/monja.jpg 처럼 적는 것을 권합니다.                 │
-  │        비워 두면 글자만 있는 카드가 됩니다.                   │
-  │        사진은 원본 비율 그대로 카드 안에 맞춰 표시됩니다.      │
-  │                                                              │
-  │  두 장 뽑기 문장은 세트마다 바꿀 수 있습니다.                 │
-  │    type 에 template 이라고 적은 줄을 한 줄 넣고,              │
-  │    jp   = 문장 틀   (예: これ、{B}じゃなくて {A}です。)        │
-  │    yomi = 발음 틀   (예: 코레, {b}쟈나쿠테 {a}데스)            │
-  │    ko   = 화면 탭 이름                                        │
-  │    answer = 카드 위 라벨 두 개, | 로 구분 (예: 주문|나온 것)   │
-  │  두 더미는 type 을 a / b 로 적어도 됩니다.                    │
-  │                                                              │
-  │  한 장 뽑기 문장도 세트마다 바꿀 수 있습니다.                 │
-  │    type 에 template1 이라고 적은 줄을 한 줄 넣고,             │
-  │    jp   = 문장 틀   ({A}=카드, {B}=그 카드의 answer)          │
-  │    yomi = 발음 틀   ({a} {b})                                 │
-  │    ko   = 탭 이름                                             │
-  │    answer = 카드 위에 뜰 안내 문구                            │
-  │  도구 더미(b)가 없으면 두 장 뽑기 탭은 자동으로 숨습니다.     │
-  └──────────────────────────────────────────────────────────────┘
--->
 <script>
   const SHEET_CSV_URL = '';
   const ROUND_SIZE = 8;   // 한 판에 뽑을 카드 장수
 
-  /* 주소 뒤에 붙이는 설정 — 교사용 페이지(teacher.html)에서 자동으로 만들어 줍니다
-     ?set=ないで          해당 글자가 든 세트만 보이기 (여러 개는 쉼표로)
-     ?yomi=off            발음을 숨긴 채로 시작
-     ?n=6                 한 판에 뽑을 장수 바꾸기                            */
   const URLOPT = new URLSearchParams(location.search);
   const ONLY = (URLOPT.get('set') || '').split(',').map(v=>v.trim()).filter(Boolean);
   const ROUND = parseInt(URLOPT.get('n'), 10) || ROUND_SIZE;
@@ -62,13 +20,13 @@
 
 <style>
   :root{
-    --ai:#16313F;          /* 남색 벽 */
-    --ai-2:#1F4457;        /* 패널 */
-    --kinari:#F2EADA;      /* 단자쿠 종이 */
+    --ai:#16313F;
+    --ai-2:#1F4457;
+    --kinari:#F2EADA;
     --kinari-2:#E4D9C2;
-    --shu:#C8452C;         /* 주홍 도장 */
-    --sumi:#23201C;        /* 먹 */
-    --moegi:#5C7A4A;       /* 연두 */
+    --shu:#C8452C;
+    --sumi:#23201C;
+    --moegi:#5C7A4A;
     --edge:rgba(242,234,218,.22);
     --jp:"Noto Serif JP",'Yu Mincho','Hiragino Mincho ProN',serif;
     --kr:"Noto Sans KR",'Malgun Gothic',sans-serif;
@@ -80,13 +38,15 @@
     margin:0; background:var(--ai); color:var(--kinari);
     font-family:var(--kr); font-size:16px; line-height:1.6;
     display:flex; flex-direction:column;
+    height:100vh; height:100dvh;
     padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    overflow:hidden;
   }
 
-  /* ── 상단 바 ───────────────────────────────── */
   header{
     display:flex; flex-wrap:wrap; gap:10px; align-items:center;
     padding:12px 16px; border-bottom:1px solid var(--edge);
+    flex:none;
   }
   .brand{font-family:var(--jp); font-size:18px; font-weight:700; letter-spacing:.02em; margin-right:auto}
   .brand span{font-family:var(--kr); font-size:12px; font-weight:400; opacity:.65; margin-left:8px}
@@ -103,29 +63,32 @@
   }
   .chip[aria-pressed="true"]{background:var(--kinari); color:var(--sumi); border-color:var(--kinari); font-weight:700}
 
-  /* ── 모드 탭 ───────────────────────────────── */
-  nav{display:flex; gap:0; padding:0 16px; border-bottom:1px solid var(--edge)}
+  nav{display:flex; gap:0; padding:0 16px; border-bottom:1px solid var(--edge); flex:none}
   nav button{
     font-family:var(--kr); font-size:15px; font-weight:500;
     background:none; border:none; border-bottom:3px solid transparent;
-    color:var(--kinari); opacity:.55; padding:12px 16px; cursor:pointer; min-height:48px;
+    color:var(--kinari); opacity:.55; padding:10px 16px; cursor:pointer; min-height:44px;
   }
   nav button[aria-selected="true"]{opacity:1; border-bottom-color:var(--shu); font-weight:700}
 
-  /* ── 무대 ─────────────────────────────────── */
-  main{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
-       padding:20px 16px 8px; gap:18px; min-height:0}
+  main{
+    flex:1 1 auto; min-height:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:14px 12px 8px; gap:12px;
+    overflow-y:auto; -webkit-overflow-scrolling:touch;
+  }
 
-  .counter{font-size:13px; opacity:.6; letter-spacing:.04em}
+  .counter{font-size:13px; opacity:.6; letter-spacing:.04em; flex:none}
 
-  .strip-row{display:flex; gap:16px; align-items:stretch; justify-content:center; flex-wrap:wrap}
+  .strip-row{
+    display:flex; gap:10px; align-items:stretch; justify-content:center;
+    flex-wrap:nowrap; width:100%; max-width:640px;
+  }
 
-  /* 단자쿠(短冊) 카드 */
   .strip{
     position:relative; background:var(--kinari); color:var(--sumi);
-    width:min(300px,84vw); min-height:min(360px,44vh);
+    width:min(300px,84vw); flex:0 1 auto;
     display:flex; flex-direction:column; align-items:center; justify-content:center;
-    padding:28px 20px; text-align:center;
+    padding:18px 16px; text-align:center;
     box-shadow:0 10px 0 -4px rgba(0,0,0,.18), 0 18px 34px rgba(0,0,0,.32);
     border-radius:1px;
   }
@@ -133,31 +96,32 @@
     content:""; position:absolute; left:14px; right:14px; height:1px; background:var(--kinari-2);
   }
   .strip::before{top:14px} .strip::after{bottom:14px}
-  .strip.small{min-height:min(230px,30vh); width:min(230px,40vw); padding:22px 14px}
+  .strip.small{
+    width:clamp(120px,42vw,230px); flex:1 1 0; min-width:0;
+    padding:14px 10px;
+  }
 
   .strip .photo{
-    width:100%; max-width:240px; height:auto; max-height:min(330px,42vh); object-fit:contain;
-    border-radius:2px; margin-bottom:16px; background:var(--kinari-2); display:block;
+    width:100%; max-width:220px; aspect-ratio:2/3; height:auto; object-fit:contain;
+    border-radius:2px; margin-bottom:12px; background:var(--kinari-2); display:block;
   }
-  .strip.small .photo{max-width:180px; max-height:min(220px,28vh); margin-bottom:11px}
-  .strip.has-photo{justify-content:flex-start; padding-top:30px; min-height:min(520px,66vh)}
-  .strip.small.has-photo{min-height:min(360px,48vh)}
+  .strip.small .photo{max-width:100%; margin-bottom:8px}
+  .strip.has-photo{justify-content:flex-start; padding-top:18px}
 
-  .jp{font-family:var(--jp); font-weight:700; font-size:clamp(26px,6.4vw,42px); line-height:1.28; word-break:keep-all}
-  .strip.small .jp{font-size:clamp(21px,4.6vw,30px)}
-  .jp.ox{font-size:clamp(78px,15vw,132px); line-height:1; font-family:var(--jp); font-weight:500}
+  .jp{font-family:var(--jp); font-weight:700; font-size:clamp(22px,6vw,38px); line-height:1.28; word-break:keep-all}
+  .strip.small .jp{font-size:clamp(17px,4.2vw,26px)}
+  .jp.ox{font-size:clamp(56px,13vw,96px); line-height:1; font-family:var(--jp); font-weight:500}
   ruby{ruby-position:over}
   rt{font-family:var(--jp); font-size:.42em; font-weight:500; letter-spacing:0}
-  .yomi{font-family:var(--kr); font-size:15px; color:#6B6257; margin-top:10px}
-  .gloss{font-family:var(--kr); font-size:13px; color:#8A8073; margin-top:2px}
-  .tag{font-family:var(--kr); font-size:11px; letter-spacing:.14em; color:#9A8F7E; margin-bottom:14px}
+  .yomi{font-family:var(--kr); font-size:14px; color:#6B6257; margin-top:8px}
+  .gloss{font-family:var(--kr); font-size:12px; color:#8A8073; margin-top:2px}
+  .tag{font-family:var(--kr); font-size:11px; letter-spacing:.14em; color:#9A8F7E; margin-bottom:10px}
   .hide-yomi .yomi{display:none}
 
-  /* 뒤집었을 때 찍히는 도장 */
   .stamp{
-    position:absolute; right:14px; bottom:16px;
-    width:64px; height:64px; border:2.5px solid var(--shu); border-radius:4px;
-    color:var(--shu); font-family:var(--jp); font-weight:700; font-size:15px; line-height:1.15;
+    position:absolute; right:12px; bottom:12px;
+    width:56px; height:56px; border:2.5px solid var(--shu); border-radius:4px;
+    color:var(--shu); font-family:var(--jp); font-weight:700; font-size:14px; line-height:1.15;
     display:flex; align-items:center; justify-content:center; text-align:center;
     transform:rotate(-9deg) scale(1); opacity:.92;
   }
@@ -165,37 +129,36 @@
   @keyframes press{0%{transform:rotate(-9deg) scale(2.2); opacity:0} 60%{opacity:1} 100%{transform:rotate(-9deg) scale(1); opacity:.92}}
 
   .placeholder{
-    width:min(300px,84vw); min-height:min(360px,44vh);
+    width:min(300px,84vw); min-height:min(280px,34vh);
     border:2px dashed var(--edge); border-radius:1px;
     display:flex; align-items:center; justify-content:center; text-align:center;
-    padding:24px; opacity:.7; font-size:15px;
+    padding:20px; opacity:.7; font-size:15px; flex:none;
   }
 
-  /* 자동 생성 문장 띠 */
   .sentence{
     background:var(--ai-2); border-left:4px solid var(--shu);
-    padding:16px 20px; max-width:min(640px,92vw); width:100%;
-    font-family:var(--jp); font-size:clamp(18px,3.6vw,25px); line-height:1.5; text-align:center;
+    padding:12px 18px; max-width:min(640px,92vw); width:100%;
+    font-family:var(--jp); font-size:clamp(16px,3.2vw,22px); line-height:1.45; text-align:center;
+    flex:none;
   }
-  .sentence .s-yomi{display:block; font-family:var(--kr); font-size:15px; color:#E9DFC9; opacity:.8; margin-top:9px; letter-spacing:.01em}
+  .sentence .s-yomi{display:block; font-family:var(--kr); font-size:14px; color:#E9DFC9; opacity:.8; margin-top:7px; letter-spacing:.01em}
 
-  .verdict{font-family:var(--jp); font-size:20px; min-height:30px; text-align:center}
+  .verdict{font-family:var(--jp); font-size:18px; min-height:26px; text-align:center; flex:none}
   .verdict.ok{color:#9CCB7E} .verdict.no{color:#F09A86}
   .verdict small{display:block; font-family:var(--kr); font-size:13px; opacity:.75; margin-top:2px}
-  .hint{font-family:var(--kr); font-size:16px; font-weight:700; color:var(--kinari);
-        border:1px solid var(--edge); border-radius:2px; padding:10px 18px; text-align:center}
+  .hint{font-family:var(--kr); font-size:15px; font-weight:700; color:var(--kinari);
+        border:1px solid var(--edge); border-radius:2px; padding:8px 16px; text-align:center; flex:none}
 
-  /* ── 하단 조작 ─────────────────────────────── */
-  footer{padding:12px 16px 20px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap}
+  footer{padding:10px 16px 16px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap; flex:none}
   .btn{
-    font-family:var(--kr); font-size:17px; font-weight:700;
+    font-family:var(--kr); font-size:16px; font-weight:700;
     background:var(--kinari); color:var(--sumi); border:none; border-radius:2px;
-    padding:14px 30px; min-height:52px; cursor:pointer;
+    padding:12px 26px; min-height:48px; cursor:pointer;
     box-shadow:0 4px 0 rgba(0,0,0,.25);
   }
   .btn:active{transform:translateY(2px); box-shadow:0 2px 0 rgba(0,0,0,.25)}
   .btn.two{
-    line-height:1.15; padding-top:9px; padding-bottom:9px;
+    line-height:1.15; padding-top:8px; padding-bottom:8px;
     display:inline-flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
   }
   .btn.two span{
@@ -207,13 +170,14 @@
   .btn:disabled{opacity:.35; cursor:default; box-shadow:none}
   .btn:focus-visible,select:focus-visible,.chip:focus-visible,nav button:focus-visible{outline:3px solid #8FC0D8; outline-offset:2px}
 
-  .note{font-size:12px; opacity:.55; text-align:center; padding:0 16px 14px}
+  .note{font-size:11px; opacity:.55; text-align:center; padding:0 16px 10px; flex:none}
   .err{color:#F09A86}
 
   @media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
-  @media (max-width:520px){
-    .strip.small{width:min(190px,44vw); min-height:200px}
-    header{padding:10px 12px} nav button{padding:11px 12px; font-size:14px}
+  @media (max-height:640px){
+    .strip .photo{margin-bottom:6px}
+    .yomi{margin-top:4px} .gloss{margin-top:1px}
+    header{padding:8px 12px} nav button{padding:8px 14px; min-height:38px}
   }
 </style>
 </head>
@@ -237,8 +201,6 @@
 <p class="note" id="note"></p>
 
 <script>
-/* ── 내장 카드 (시트를 연결하지 않아도 동작) ─────────────────
-   순서: 세트, 종류, 일본어, 한글발음, 뜻, 정답도구, 사진주소(선택) */
 const BUILTIN = [
   ['5과 · 활동 카드','food','もんじゃやき','몬자야키','몬자야키','こて','/2-2/5/img/monja.jpg'],
   ['5과 · 활동 카드','food','そうめん','소멘','소면','はし'],
@@ -378,7 +340,6 @@ const BUILTIN = [
   ['6과 · ても いいですか','b','×','','','すみません、今(いま) ちょっと……。::스미마셍, 이마 촛토','']
 ];
 
-/* ── 상태 ─────────────────────────────────────── */
 let rows = [], setName = '', mode = 'quiz';
 let deck = [], current = null, revealed = false, roundTotal = 0, quizHint = false;
 let mixFood = null, mixTool = null, mixJudged = null, mixHint = false;
@@ -388,7 +349,6 @@ const controls = document.getElementById('controls');
 const note = document.getElementById('note');
 const setSel = document.getElementById('setSel');
 
-/* ── CSV 파싱 (따옴표 있는 칸 처리) ─────────────── */
 function parseCSV(text){
   const out=[]; let row=[], cell='', q=false;
   for(let i=0;i<text.length;i++){
@@ -433,7 +393,6 @@ async function load(){
     const picked = sets.filter(s => ONLY.some(k => s.includes(k)));
     if(picked.length) sets = picked;
   }
-  // 걸러진 세트의 카드만 남긴다
   rows = rows.filter(r => sets.includes(r[0]));
   setSel.innerHTML = sets.map(s=>`<option>${s}</option>`).join('');
   setSel.style.display = sets.length > 1 ? '' : 'none';
@@ -441,7 +400,6 @@ async function load(){
   reset();
 }
 
-/* ── 도우미 ───────────────────────────────────── */
 const A_TYPES = ['food','a','pile1'];
 const B_TYPES = ['tool','b','pile2'];
 const inSet = () => rows.filter(r=>r[0]===setName);
@@ -456,7 +414,6 @@ const pileTags = () => { const t=tmpl(); const parts=(t&&t[5]||'').split('|'); r
 const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; };
 const yomiOf = jp => { const t = pileB().find(r=>r[2]===jp); return t?t[3]:''; };
 
-// answer가 "힌트::문장 조각::발음"이면 카드와 문장을 분리해서 사용한다.
 function pieceOf(card){
   const raw = (card && card[5]) || '';
   const parts = raw.split('::');
@@ -465,7 +422,6 @@ function pieceOf(card){
   return { hint:'', jp:card[2], yomi:card[3] };
 }
 
-// 한 장 뽑기 문장. {A}=카드, {B}=그 카드의 정답
 function buildSentence1(card){
   const t = tmpl1();
   const jpT = t ? t[2] : '{B}で 食べるんだよ。';
@@ -479,7 +435,6 @@ function buildSentence1(card){
   };
 }
 
-// 두 장 뽑기 문장. {A}{B}=일본어, {a}{b}=한글 발음
 function buildSentence(a, b){
   const t = tmpl();
   const jpT = t ? t[2] : '{A}は {B}で 食べるんだよ。';
@@ -495,7 +450,6 @@ function buildSentence(a, b){
     jp:fill(jpT,{A:pa.jp,B:pb.jp}), yomi:fill(yoT,{a:pa.yomi,b:pb.yomi}) };
 }
 const esc = s => (s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-// 漢字(かな) 표기를 실제 후리가나로 바꾼다.
 const jpHTML = s => esc(s).replace(/([一-龯々]+)\(([ぁ-ゖァ-ヺー]+)\)/g,'<ruby>$1<rt>$2</rt></ruby>');
 
 function reset(){
@@ -520,7 +474,6 @@ function stripHTML(card, opts={}){
     <div class="gloss">${esc(card[4])}</div>${stamp}</div>`;
 }
 
-/* ── 화면 그리기 ───────────────────────────────── */
 function render(){
   const quizTab = document.getElementById('tab-quiz');
   const mixTab = document.getElementById('tab-mix');
@@ -541,7 +494,6 @@ function render(){
 
 const promptOf = () => { const t = tmpl1(); return (t && t[5]) ? t[5] : 'これ、どうやって 食べるの？'; };
 
-// 정답 맨 앞의 {{힌트}}는 힌트 버튼에서만 보여 준다.
 function splitHint(raw){
   const m = raw.match(/^\{\{(.*?)\}\}/);
   return m ? { hint:m[1].trim(), rest:raw.slice(m[0].length) } : { hint:'', rest:raw };
@@ -557,11 +509,8 @@ const ansParts = card => {
   return i < 0 ? [raw, ''] : [raw.slice(0, i).trim(), raw.slice(i + 1).trim()];
 };
 
-// 정답이 같은 더미 안의 다른 카드를 가리키면 '짝' 세트로 본다
 const partnerOf = card => { const a = ansParts(card)[0]; return a ? pileA().find(r=>r[2]===a) : null; };
 
-// 문장 틀에서 카드 사이/뒤에 오는 말을 뽑아 카드 위 라벨로 쓴다
-// 예: 「これ、{B}じゃなくて {A}です。」 → ['じゃなくて', 'です。']
 function pairLabels(){
   const t = tmpl1();
   if(!t) return null;
@@ -600,7 +549,6 @@ function renderQuiz(){
   const showHint = !partner && hint && !revealed;
 
   if(partner && L){
-    // 짝 세트 : 두 장을 나란히 보여 준다
     const first  = L.order[0] === 'A' ? current : partner;
     const second = L.order[0] === 'A' ? partner : current;
     stage.innerHTML = `<div class="counter">${done + 1} / ${total}</div>
@@ -697,14 +645,12 @@ function spin(){
   const f = pileA(), t = pileB();
   const r = a => a[Math.floor(Math.random()*a.length)];
   mixFood = r(f); mixTool = r(t);
-  // 같은 것이 두 장 나오면 문장이 성립하지 않으므로 다시 뽑음
   let guard = 0;
   while(mixFood[2] === mixTool[2] && t.length > 1 && guard++ < 20) mixTool = r(t);
   mixJudged = null; mixHint = false;
   render();
 }
 
-/* ── 이벤트 ───────────────────────────────────── */
 document.getElementById('tab-quiz').onclick = () => { mode='quiz'; render(); };
 document.getElementById('tab-mix').onclick  = () => { mode='mix';  render(); };
 setSel.onchange = e => { setName = e.target.value; reset(); };
