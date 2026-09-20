@@ -6,7 +6,7 @@
 <title>일본어 회화 — 카드 뽑기</title>
 
 <script>
-  const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTIwNZk2gTYyVEhjt9GvVDFH6mxYPfilk6TQQZd_hjcn0iV-VLyopvBcLTYyEbYHwPjQULHhQWo-Hp2/pubhtml';
+const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTIwNZk2gTYyVEhjt9GvVDFH6mxYPfilk6TQQZd_hjcn0iV-VLyopvBcLTYyEbYHwPjQULHhQWo-Hp2/pub?gid=1129369923&single=true&output=csv';
   const ROUND_SIZE = 8;
   const URLOPT = new URLSearchParams(location.search);
   const ONLY = (URLOPT.get('set') || '').split(',').map(v=>v.trim()).filter(Boolean);
