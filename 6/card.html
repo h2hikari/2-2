@@ -3,54 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title> 祇園はまだですか ？ — 카드 뽑기</title>
+<title>일본어 회화 — 카드 뽑기</title>
 
-<!--
-  ┌──────────────────────────────────────────────────────────────┐
-  │  설정: 아래 SHEET_CSV_URL 한 줄만 바꾸면 됩니다.              │
-  │                                                              │
-  │  1. 구글 시트에 카드 목록을 만듭니다.                        │
-  │     (동봉한 카드목록.csv 를 그대로 가져오기 하면 됩니다)     │
-  │  2. 파일 > 공유 > 웹에 게시 > 시트 선택 > 쉼표로 구분된 값   │
-  │  3. 나온 주소를 아래에 붙여넣습니다.                         │
-  │                                                              │
-  │  비워 두면 이 파일에 내장된 5과 카드로 동작합니다.           │
-  │                                                              │
-  │  ROUND_SIZE 는 한 판에 뽑을 카드 장수입니다.                  │
-  │    카드가 아무리 많아도 한 판은 이 장수만큼만 돌고,           │
-  │    「다시 섞기」를 누르면 다른 카드가 나옵니다.                │
-  │                                                              │
-  │  사진: 시트의 img 열에 주소를 적으면 카드에 사진이 붙습니다.  │
-  │        같은 저장소에 img 폴더를 만들어 두고                   │
-  │        img/monja.jpg 처럼 적는 것을 권합니다.                 │
-  │        비워 두면 글자만 있는 카드가 됩니다.                   │
-  │        사진은 원본 비율 그대로 카드 안에 맞춰 표시됩니다.      │
-  │                                                              │
-  │  두 장 뽑기 문장은 세트마다 바꿀 수 있습니다.                 │
-  │    type 에 template 이라고 적은 줄을 한 줄 넣고,              │
-  │    jp   = 문장 틀   (예: これ、{B}じゃなくて {A}です。)        │
-  │    yomi = 발음 틀   (예: 코레, {b}쟈나쿠테 {a}데스)            │
-  │    ko   = 화면 탭 이름                                        │
-  │    answer = 카드 위 라벨 두 개, | 로 구분 (예: 주문|나온 것)   │
-  │  두 더미는 type 을 a / b 로 적어도 됩니다.                    │
-  │                                                              │
-  │  한 장 뽑기 문장도 세트마다 바꿀 수 있습니다.                 │
-  │    type 에 template1 이라고 적은 줄을 한 줄 넣고,             │
-  │    jp   = 문장 틀   ({A}=카드, {B}=그 카드의 answer)          │
-  │    yomi = 발음 틀   ({a} {b})                                 │
-  │    ko   = 탭 이름                                             │
-  │    answer = 카드 위에 뜰 안내 문구                            │
-  │  도구 더미(b)가 없으면 두 장 뽑기 탭은 자동으로 숨습니다.     │
-  └──────────────────────────────────────────────────────────────┘
--->
 <script>
   const SHEET_CSV_URL = '';
-  const ROUND_SIZE = 8;   // 한 판에 뽑을 카드 장수
-
-  /* 주소 뒤에 붙이는 설정 — 교사용 페이지(teacher.html)에서 자동으로 만들어 줍니다
-     ?set=ないで          해당 글자가 든 세트만 보이기 (여러 개는 쉼표로)
-     ?yomi=off            발음을 숨긴 채로 시작
-     ?n=6                 한 판에 뽑을 장수 바꾸기                            */
+  const ROUND_SIZE = 8;
   const URLOPT = new URLSearchParams(location.search);
   const ONLY = (URLOPT.get('set') || '').split(',').map(v=>v.trim()).filter(Boolean);
   const ROUND = parseInt(URLOPT.get('n'), 10) || ROUND_SIZE;
@@ -62,251 +19,135 @@
 
 <style>
   :root{
-    --ai:#16313F;          /* 남색 벽 */
-    --ai-2:#1F4457;        /* 패널 */
-    --kinari:#F2EADA;      /* 단자쿠 종이 */
-    --kinari-2:#E4D9C2;
-    --shu:#C8452C;         /* 주홍 도장 */
-    --sumi:#23201C;        /* 먹 */
-    --moegi:#5C7A4A;       /* 연두 */
-    --edge:rgba(242,234,218,.22);
+    --ai:#16313F;--ai-2:#1F4457;--kinari:#F2EADA;--kinari-2:#E4D9C2;
+    --shu:#C8452C;--sumi:#23201C;--moegi:#5C7A4A;--edge:rgba(242,234,218,.22);
     --jp:"Noto Serif JP",'Yu Mincho','Hiragino Mincho ProN',serif;
     --kr:"Noto Sans KR",'Malgun Gothic',sans-serif;
   }
-
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{height:100%}
-  body{
-    margin:0; background:var(--ai); color:var(--kinari);
-    font-family:var(--kr); font-size:16px; line-height:1.6;
-    display:flex; flex-direction:column; height:100dvh; min-height:100%; overflow:hidden;
-    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-  }
-
-  /* ── 상단 바 ───────────────────────────────── */
-  header{
-    display:flex; flex-wrap:wrap; gap:10px; align-items:center;
-    padding:12px 16px; border-bottom:1px solid var(--edge);
-  }
-  .brand{font-family:var(--jp); font-size:18px; font-weight:700; letter-spacing:.02em; margin-right:auto}
-  .brand span{font-family:var(--kr); font-size:12px; font-weight:400; opacity:.65; margin-left:8px}
-
-  select,.chip{
-    font-family:var(--kr); font-size:14px; color:var(--kinari);
-    background:var(--ai-2); border:1px solid var(--edge); border-radius:2px;
-    padding:8px 12px; min-height:40px; cursor:pointer;
-  }
-  select{appearance:none; padding-right:30px;
-    background-image:linear-gradient(45deg,transparent 50%,var(--kinari) 50%),linear-gradient(135deg,var(--kinari) 50%,transparent 50%);
-    background-position:calc(100% - 16px) 18px,calc(100% - 11px) 18px;
-    background-size:5px 5px,5px 5px; background-repeat:no-repeat;
-  }
-  .chip[aria-pressed="true"]{background:var(--kinari); color:var(--sumi); border-color:var(--kinari); font-weight:700}
-
-  /* ── 모드 탭 ───────────────────────────────── */
-  nav{display:flex; gap:0; padding:0 16px; border-bottom:1px solid var(--edge)}
-  nav button{
-    font-family:var(--kr); font-size:15px; font-weight:500;
-    background:none; border:none; border-bottom:3px solid transparent;
-    color:var(--kinari); opacity:.55; padding:12px 16px; cursor:pointer; min-height:48px;
-  }
-  nav button[aria-selected="true"]{opacity:1; border-bottom-color:var(--shu); font-weight:700}
-
-  /* ── 무대 ─────────────────────────────────── */
-  main{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; justify-content:safe center;
-       padding:20px 16px 8px; gap:18px; min-height:0; overflow-y:auto; overscroll-behavior:contain}
-
-  .counter{font-size:13px; opacity:.6; letter-spacing:.04em}
-
-  .strip-row{display:flex; gap:16px; align-items:stretch; justify-content:center; flex-wrap:wrap}
-
-  /* 단자쿠(短冊) 카드 */
-  .strip{
-    position:relative; background:var(--kinari); color:var(--sumi);
-    width:min(300px,84vw); min-height:min(360px,44vh);
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    padding:28px 20px; text-align:center;
-    box-shadow:0 10px 0 -4px rgba(0,0,0,.18), 0 18px 34px rgba(0,0,0,.32);
-    border-radius:1px;
-  }
-  .strip::before,.strip::after{
-    content:""; position:absolute; left:14px; right:14px; height:1px; background:var(--kinari-2);
-  }
-  .strip::before{top:14px} .strip::after{bottom:14px}
-  .strip.small{min-height:min(230px,30vh); width:min(230px,40vw); padding:22px 14px}
-
-  .strip .photo{
-    width:100%; max-width:240px; height:auto; max-height:min(330px,42vh); object-fit:contain;
-    border-radius:2px; margin-bottom:16px; background:var(--kinari-2); display:block;
-  }
-  .strip.small .photo{max-width:180px; max-height:min(220px,28vh); margin-bottom:11px}
-  .strip.has-photo{justify-content:flex-start; padding-top:30px; min-height:min(520px,66vh)}
+  body{margin:0;background:var(--ai);color:var(--kinari);font-family:var(--kr);font-size:16px;line-height:1.6;display:flex;flex-direction:column;height:100dvh;min-height:100%;overflow:hidden;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+  header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--edge)}
+  .brand{font-family:var(--jp);font-size:18px;font-weight:700;letter-spacing:.02em;margin-right:auto}
+  .brand span{font-family:var(--kr);font-size:12px;font-weight:400;opacity:.65;margin-left:8px}
+  select,.chip{font-family:var(--kr);font-size:14px;color:var(--kinari);background:var(--ai-2);border:1px solid var(--edge);border-radius:2px;padding:8px 12px;min-height:40px;cursor:pointer}
+  select{appearance:none;padding-right:30px;background-image:linear-gradient(45deg,transparent 50%,var(--kinari) 50%),linear-gradient(135deg,var(--kinari) 50%,transparent 50%);background-position:calc(100% - 16px) 18px,calc(100% - 11px) 18px;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+  .chip[aria-pressed="true"]{background:var(--kinari);color:var(--sumi);border-color:var(--kinari);font-weight:700}
+  nav{display:flex;gap:0;padding:0 16px;border-bottom:1px solid var(--edge)}
+  nav button{font-family:var(--kr);font-size:15px;font-weight:500;background:none;border:none;border-bottom:3px solid transparent;color:var(--kinari);opacity:.55;padding:12px 16px;cursor:pointer;min-height:48px}
+  nav button[aria-selected="true"]{opacity:1;border-bottom-color:var(--shu);font-weight:700}
+  main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;justify-content:safe center;padding:20px 16px 8px;gap:18px;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+  .counter{font-size:13px;opacity:.6;letter-spacing:.04em}
+  .strip-row{display:flex;gap:16px;align-items:stretch;justify-content:center;flex-wrap:wrap}
+  .strip{position:relative;background:var(--kinari);color:var(--sumi);width:min(300px,84vw);min-height:min(360px,44vh);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 20px;text-align:center;box-shadow:0 10px 0 -4px rgba(0,0,0,.18),0 18px 34px rgba(0,0,0,.32);border-radius:1px}
+  .strip::before,.strip::after{content:"";position:absolute;left:14px;right:14px;height:1px;background:var(--kinari-2)}
+  .strip::before{top:14px}.strip::after{bottom:14px}
+  .strip.small{min-height:min(230px,30vh);width:min(230px,40vw);padding:22px 14px}
+  .strip .photo{width:100%;max-width:240px;height:auto;max-height:min(330px,42vh);object-fit:contain;border-radius:2px;margin-bottom:16px;background:var(--kinari-2);display:block}
+  .strip.small .photo{max-width:180px;max-height:min(220px,28vh);margin-bottom:11px}
+  .strip.has-photo{justify-content:flex-start;padding-top:30px;min-height:min(520px,66vh)}
   .strip.small.has-photo{min-height:min(360px,48vh)}
-
-  .jp{font-family:var(--jp); font-weight:700; font-size:clamp(26px,6.4vw,42px); line-height:1.28; word-break:keep-all}
+  .jp{font-family:var(--jp);font-weight:700;font-size:clamp(26px,6.4vw,42px);line-height:1.28;word-break:keep-all}
   .strip.small .jp{font-size:clamp(21px,4.6vw,30px)}
-  .jp.ox{font-size:clamp(78px,15vw,132px); line-height:1; font-family:var(--jp); font-weight:500}
-  ruby{ruby-position:over}
-  rt{font-family:var(--jp); font-size:.42em; font-weight:500; letter-spacing:0}
-  .yomi{font-family:var(--kr); font-size:15px; color:#6B6257; margin-top:10px}
-  .gloss{font-family:var(--kr); font-size:13px; color:#8A8073; margin-top:2px}
-  .tag{font-family:var(--kr); font-size:11px; letter-spacing:.14em; color:#9A8F7E; margin-bottom:14px}
+  .jp.ox{font-size:clamp(78px,15vw,132px);line-height:1;font-family:var(--jp);font-weight:500}
+  ruby{ruby-position:over}rt{font-family:var(--jp);font-size:.42em;font-weight:500;letter-spacing:0}
+  .yomi{font-family:var(--kr);font-size:15px;color:#6B6257;margin-top:10px}
+  .gloss{font-family:var(--kr);font-size:13px;color:#8A8073;margin-top:2px}
+  .tag{font-family:var(--kr);font-size:11px;letter-spacing:.14em;color:#9A8F7E;margin-bottom:14px}
   .hide-yomi .yomi{display:none}
-
-  /* 뒤집었을 때 찍히는 도장 */
-  .stamp{
-    position:absolute; right:14px; bottom:16px;
-    width:64px; height:64px; border:2.5px solid var(--shu); border-radius:4px;
-    color:var(--shu); font-family:var(--jp); font-weight:700; font-size:15px; line-height:1.15;
-    display:flex; align-items:center; justify-content:center; text-align:center;
-    transform:rotate(-9deg) scale(1); opacity:.92;
-  }
+  .stamp{position:absolute;right:14px;bottom:16px;width:64px;height:64px;border:2.5px solid var(--shu);border-radius:4px;color:var(--shu);font-family:var(--jp);font-weight:700;font-size:15px;line-height:1.15;display:flex;align-items:center;justify-content:center;text-align:center;transform:rotate(-9deg) scale(1);opacity:.92}
   .stamp.press{animation:press .34s cubic-bezier(.2,1.5,.4,1)}
-  @keyframes press{0%{transform:rotate(-9deg) scale(2.2); opacity:0} 60%{opacity:1} 100%{transform:rotate(-9deg) scale(1); opacity:.92}}
-
-  .placeholder{
-    width:min(300px,84vw); min-height:min(360px,44vh);
-    border:2px dashed var(--edge); border-radius:1px;
-    display:flex; align-items:center; justify-content:center; text-align:center;
-    padding:24px; opacity:.7; font-size:15px;
-  }
-
-  /* 자동 생성 문장 띠 */
-  .sentence{
-    background:var(--ai-2); border-left:4px solid var(--shu);
-    padding:16px 20px; max-width:min(640px,92vw); width:100%;
-    font-family:var(--jp); font-size:clamp(18px,3.6vw,25px); line-height:1.5; text-align:center;
-  }
-  .sentence .s-yomi{display:block; font-family:var(--kr); font-size:15px; color:#E9DFC9; opacity:.8; margin-top:9px; letter-spacing:.01em}
-
-  .verdict{font-family:var(--jp); font-size:20px; min-height:30px; text-align:center}
-  .verdict.ok{color:#9CCB7E} .verdict.no{color:#F09A86}
-  .verdict small{display:block; font-family:var(--kr); font-size:13px; opacity:.75; margin-top:2px}
-  .hint{font-family:var(--kr); font-size:16px; font-weight:700; color:var(--kinari);
-        border:1px solid var(--edge); border-radius:2px; padding:10px 18px; text-align:center}
-
-  /* ── 하단 조작 ─────────────────────────────── */
-  footer{padding:12px 16px max(20px,env(safe-area-inset-bottom)); display:flex; gap:10px;
-         justify-content:center; flex-wrap:wrap; flex:0 0 auto; background:var(--ai); z-index:2}
-  .btn{
-    font-family:var(--kr); font-size:17px; font-weight:700;
-    background:var(--kinari); color:var(--sumi); border:none; border-radius:2px;
-    padding:14px 30px; min-height:52px; cursor:pointer;
-    box-shadow:0 4px 0 rgba(0,0,0,.25);
-  }
-  .btn:active{transform:translateY(2px); box-shadow:0 2px 0 rgba(0,0,0,.25)}
-  .btn.two{
-    line-height:1.15; padding-top:9px; padding-bottom:9px;
-    display:inline-flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
-  }
-  .btn.two span{
-    display:block; font-size:12px; font-weight:400; opacity:.62; letter-spacing:.02em;
-  }
+  @keyframes press{0%{transform:rotate(-9deg) scale(2.2);opacity:0}60%{opacity:1}100%{transform:rotate(-9deg) scale(1);opacity:.92}}
+  .placeholder{width:min(300px,84vw);min-height:min(360px,44vh);border:2px dashed var(--edge);border-radius:1px;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;opacity:.7;font-size:15px}
+  .sentence{background:var(--ai-2);border-left:4px solid var(--shu);padding:16px 20px;max-width:min(640px,92vw);width:100%;font-family:var(--jp);font-size:clamp(18px,3.6vw,25px);line-height:1.5;text-align:center}
+  .sentence .s-yomi{display:block;font-family:var(--kr);font-size:15px;color:#E9DFC9;opacity:.8;margin-top:9px;letter-spacing:.01em}
+  .verdict{font-family:var(--jp);font-size:20px;min-height:30px;text-align:center}
+  .verdict.ok{color:#9CCB7E}.verdict.no{color:#F09A86}
+  .verdict small{display:block;font-family:var(--kr);font-size:13px;opacity:.75;margin-top:2px}
+  .hint{font-family:var(--kr);font-size:16px;font-weight:700;color:var(--kinari);border:1px solid var(--edge);border-radius:2px;padding:10px 18px;text-align:center}
+  footer{padding:12px 16px max(20px,env(safe-area-inset-bottom));display:flex;gap:10px;justify-content:center;flex-wrap:wrap;flex:0 0 auto;background:var(--ai);z-index:2}
+  .btn{font-family:var(--kr);font-size:17px;font-weight:700;background:var(--kinari);color:var(--sumi);border:none;border-radius:2px;padding:14px 30px;min-height:52px;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+  .btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.25)}
+  .btn.two{line-height:1.15;padding-top:9px;padding-bottom:9px;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+  .btn.two span{display:block;font-size:12px;font-weight:400;opacity:.62;letter-spacing:.02em}
   .btn.shu.two span{opacity:.85}
-  .btn.ghost{background:transparent; color:var(--kinari); border:1px solid var(--edge); box-shadow:none; font-weight:500}
-  .btn.shu{background:var(--shu); color:#fff}
-  .btn:disabled{opacity:.35; cursor:default; box-shadow:none}
-  .btn:focus-visible,select:focus-visible,.chip:focus-visible,nav button:focus-visible{outline:3px solid #8FC0D8; outline-offset:2px}
-
-  .note{font-size:12px; opacity:.55; text-align:center; padding:0 16px 14px; margin:0; flex:0 0 auto}
+  .btn.ghost{background:transparent;color:var(--kinari);border:1px solid var(--edge);box-shadow:none;font-weight:500}
+  .btn.shu{background:var(--shu);color:#fff}
+  .btn:disabled{opacity:.35;cursor:default;box-shadow:none}
+  .btn:focus-visible,select:focus-visible,.chip:focus-visible,nav button:focus-visible{outline:3px solid #8FC0D8;outline-offset:2px}
+  .note{font-size:12px;opacity:.55;text-align:center;padding:0 16px 14px;margin:0;flex:0 0 auto}
   .err{color:#F09A86}
-
-  @media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
-  @media (max-width:900px){
-    .strip-row{width:100%; flex-wrap:nowrap; gap:12px; align-items:stretch}
-    .strip.small{width:min(260px,calc((100vw - 44px)/2)); min-width:0; padding:20px 12px}
-    .strip.small .photo{width:100%; max-width:100%; height:auto; max-height:min(240px,30vh); object-fit:contain}
-  }
-  @media (max-width:520px){
-    main{padding:12px 10px 6px; gap:12px}
-    .strip-row{gap:8px}
-    .strip.small{width:calc((100vw - 28px)/2); min-height:190px; padding:18px 8px}
-    .strip.small.has-photo{min-height:240px}
-    .strip.small .photo{max-height:min(190px,24vh); margin-bottom:8px}
-    .strip.small .jp{font-size:clamp(17px,5.5vw,24px)}
-    .strip.small .yomi{font-size:12px; margin-top:7px}
-    .strip.small .gloss{font-size:11px}
-    .strip.small .tag{font-size:10px; margin-bottom:9px; letter-spacing:.06em}
-    .jp.ox{font-size:clamp(64px,22vw,96px)}
-    footer{padding:9px 10px max(12px,env(safe-area-inset-bottom))}
-    .btn{font-size:15px; min-height:48px; padding:11px 20px}
-    .note{display:none}
-    header{padding:10px 12px} nav button{padding:11px 12px; font-size:14px}
-  }
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  @media(max-width:900px){.strip-row{width:100%;flex-wrap:nowrap;gap:12px;align-items:stretch}.strip.small{width:min(260px,calc((100vw - 44px)/2));min-width:0;padding:20px 12px}.strip.small .photo{width:100%;max-width:100%;height:auto;max-height:min(240px,30vh);object-fit:contain}}
+  @media(max-width:520px){main{padding:12px 10px 6px;gap:12px}.strip-row{gap:8px}.strip.small{width:calc((100vw - 28px)/2);min-height:190px;padding:18px 8px}.strip.small.has-photo{min-height:240px}.strip.small .photo{max-height:min(190px,24vh);margin-bottom:8px}.strip.small .jp{font-size:clamp(17px,5.5vw,24px)}.strip.small .yomi{font-size:12px;margin-top:7px}.strip.small .gloss{font-size:11px}.strip.small .tag{font-size:10px;margin-bottom:9px;letter-spacing:.06em}.jp.ox{font-size:clamp(64px,22vw,96px)}footer{padding:9px 10px max(12px,env(safe-area-inset-bottom))}.btn{font-size:15px;min-height:48px;padding:11px 20px}.note{display:none}header{padding:10px 12px}nav button{padding:11px 12px;font-size:14px}}
 </style>
 </head>
-
 <body>
-
 <header>
-  <div class="brand"> 祇園はまだですか。 <span>6과 카드 뽑기</span></div>
+  <div class="brand"> 日本語会話 <span>카드 뽑기</span></div>
   <select id="setSel" aria-label="카드 세트 고르기"></select>
   <button class="chip" id="yomiBtn" aria-pressed="true">발음 숨기기</button>
 </header>
-
 <nav role="tablist">
   <button role="tab" id="tab-quiz" aria-selected="true">먹는 법 퀴즈</button>
   <button role="tab" id="tab-mix" aria-selected="false">도구 뽑기</button>
 </nav>
-
 <main id="stage"></main>
-
 <footer id="controls"></footer>
 <p class="note" id="note"></p>
-
 <script>
-/* ── 내장 카드 (시트를 연결하지 않아도 동작) ─────────────────
-   순서: 세트, 종류, 일본어, 한글발음, 뜻, 정답도구, 사진주소(선택) */
 const BUILTIN = [
   ['5과 · 활동 카드','food','もんじゃやき','몬자야키','몬자야키','こて','/2-2/5/img/monja.jpg'],
-  ['5과 · 활동 카드','food','そうめん','소멘','소면','はし'],
-  ['5과 · 활동 카드','food','なっとう','낫토','낫토','はし'],
-  ['5과 · 활동 카드','food','おこのみやき','오코노미야키','오코노미야키','はし'],
-  ['5과 · 활동 카드','food','そば','소바','메밀국수','はし'],
-  ['5과 · 활동 카드','food','うどん','우동','우동','はし'],
-  ['5과 · 활동 카드','food','ラーメン','라-메ㄴ','라멘','はし'],
-  ['5과 · 활동 카드','food','ぎょうざ','교-자','만두','はし'],
-  ['5과 · 활동 카드','food','おでん','오뎅','어묵탕','はし'],
-  ['5과 · 활동 카드','food','とんかつ','톤카츠','돈가스','はし'],
-  ['5과 · 활동 카드','food','おにぎり','오니기리','주먹밥','手'],
-  ['5과 · 활동 카드','food','ハンバーガー','함바-가-','햄버거','手'],
-  ['5과 · 활동 카드','food','すし','스시','초밥','手'],
-  ['5과 · 활동 카드','food','ピザ','피자','피자','手'],
-  ['5과 · 활동 카드','food','たいやき','타이야키','붕어빵','手'],
-  ['5과 · 활동 카드','food','やきとり','야키토리','닭꼬치','手'],
-  ['5과 · 활동 카드','food','サンドイッチ','산도잇치','샌드위치','手'],
-  ['5과 · 활동 카드','food','ソフトクリーム','소후토쿠리-무','소프트아이스크림','手'],
-  ['5과 · 활동 카드','food','カレーライス','카레-라이스','카레라이스','スプーン'],
-  ['5과 · 활동 카드','food','パフェ','파훼','파르페','スプーン'],
-  ['5과 · 활동 카드','food','かきごおり','카키고-리','빙수','スプーン'],
-  ['5과 · 활동 카드','food','プリン','푸린','푸딩','スプーン'],
-  ['5과 · 활동 카드','food','グラタン','구라탄','그라탱','スプーン'],
-  ['5과 · 활동 카드','food','スープ','스-푸','수프','スプーン'],
-  ['5과 · 활동 카드','food','ステーキ','스테-키','스테이크','フォーク'],
-  ['5과 · 활동 카드','food','ケーキ','케-키','케이크','フォーク'],
-  ['5과 · 활동 카드','food','サラダ','사라다','샐러드','フォーク'],
-  ['5과 · 활동 카드','food','スパゲッティ','스파겟티','스파게티','フォーク'],
-  ['5과 · 활동 카드','food','チャーハン','챠-한','볶음밥','れんげ'],
-  ['5과 · 활동 카드','tool','はし','하시','젓가락',''],
-  ['5과 · 활동 카드','tool','手','테','손',''],
-  ['5과 · 활동 카드','tool','スプーン','스푸-ㄴ','숟가락',''],
-  ['5과 · 활동 카드','tool','フォーク','포-쿠','포크',''],
+  ['5과 · 활동 카드','food','そうめん','소멘','소면','はし',''],
+  ['5과 · 활동 카드','food','なっとう','낫토','낫토','はし',''],
+  ['5과 · 활동 카드','food','おこのみやき','오코노미야키','오코노미야키','はし',''],
+  ['5과 · 활동 카드','food','そば','소바','메밀국수','はし',''],
+  ['5과 · 활동 카드','food','うどん','우동','우동','はし',''],
+  ['5과 · 활동 카드','food','ラーメン','라-메ㄴ','라멘','はし',''],
+  ['5과 · 활동 카드','food','ぎょうざ','교-자','만두','はし',''],
+  ['5과 · 활동 카드','food','おでん','오뎅','어묵탕','はし',''],
+  ['5과 · 활동 카드','food','とんかつ','톤카츠','돈가스','はし',''],
+  ['5과 · 활동 카드','food','おにぎり','오니기리','주먹밥','手',''],
+  ['5과 · 활동 카드','food','ハンバーガー','함바-가-','햄버거','手',''],
+  ['5과 · 활동 카드','food','すし','스시','초밥','手',''],
+  ['5과 · 활동 카드','food','ピザ','피자','피자','手',''],
+  ['5과 · 활동 카드','food','たいやき','타이야키','붕어빵','手',''],
+  ['5과 · 활동 카드','food','やきとり','야키토리','닭꼬치','手',''],
+  ['5과 · 활동 카드','food','サンドイッチ','산도잇치','샌드위치','手',''],
+  ['5과 · 활동 카드','food','ソフトクリーム','소후토쿠리-무','소프트아이스크림','手',''],
+  ['5과 · 활동 카드','food','カレーライス','카레-라이스','카레라이스','スプーン',''],
+  ['5과 · 활동 카드','food','パフェ','파훼','파르페','スプーン',''],
+  ['5과 · 활동 카드','food','かきごおり','카키고-리','빙수','スプーン',''],
+  ['5과 · 활동 카드','food','プリン','푸린','푸딩','スプーン',''],
+  ['5과 · 활동 카드','food','グラタン','구라탄','그라탱','スプーン',''],
+  ['5과 · 활동 카드','food','スープ','스-푸','수프','スプーン',''],
+  ['5과 · 활동 카드','food','ステーキ','스테-키','스테이크','フォーク',''],
+  ['5과 · 활동 카드','food','ケーキ','케-키','케이크','フォーク',''],
+  ['5과 · 활동 카드','food','サラダ','사라다','샐러드','フォーク',''],
+  ['5과 · 활동 카드','food','スパゲッティ','스파겟티','스파게티','フォーク',''],
+  ['5과 · 활동 카드','food','チャーハン','챠-한','볶음밥','れんげ',''],
+  ['5과 · 활동 카드','tool','はし','하시','젓가락','',''],
+  ['5과 · 활동 카드','tool','手','테','손','',''],
+  ['5과 · 활동 카드','tool','スプーン','스푸-ㄴ','숟가락','',''],
+  ['5과 · 활동 카드','tool','フォーク','포-쿠','포크','',''],
   ['5과 · 활동 카드','tool','こて','코테','작은 주걱','','/2-2/5/img/kote.jpg'],
-  ['5과 · 활동 카드','tool','れんげ','렌게','중국식 숟가락',''],
-  ['5과 · 활동 카드','tool','ストロー','스토로-','빨대',''],
+  ['5과 · 활동 카드','tool','れんげ','렌게','중국식 숟가락','',''],
+  ['5과 · 활동 카드','tool','ストロー','스토로-','빨대','',''],
 
-  ['3차시 · 교과서 음식','food','ぎゅうどん','규-동','소고기덮밥','はし'],
-  ['3차시 · 교과서 음식','food','うどん','우동','우동','はし'],
-  ['3차시 · 교과서 음식','food','ラーメン','라-메ㄴ','라멘','はし'],
-  ['3차시 · 교과서 음식','food','おちゃづけ','오차즈케','오차즈케','はし'],
-  ['3차시 · 교과서 음식','food','カレーライス','카레-라이스','카레라이스','スプーン'],
-  ['3차시 · 교과서 음식','food','たこやき','타코야키','타코야키','ようじ'],
-  ['3차시 · 교과서 음식','tool','はし','하시','젓가락',''],
-  ['3차시 · 교과서 음식','tool','手','테','손',''],
-  ['3차시 · 교과서 음식','tool','スプーン','스푸-ㄴ','숟가락',''],
-  ['3차시 · 교과서 음식','tool','ようじ','요-지','이쑤시개',''],
-  ['3차시 · 교과서 음식','tool','ストロー','스토로-','빨대',''],
+  // ── 3차시 · 교과서 음식 ──
+  ['3차시 · 교과서 음식','food','ぎゅうどん','규-동','소고기덮밥','はし',''],
+  ['3차시 · 교과서 음식','food','うどん','우동','우동','はし',''],
+  ['3차시 · 교과서 음식','food','ラーメン','라-메ㄴ','라멘','はし',''],
+  ['3차시 · 교과서 음식','food','おちゃづけ','오차즈케','오차즈케','はし',''],
+  ['3차시 · 교과서 음식','food','カレーライス','카레-라이스','카레라이스','スプーン',''],
+  ['3차시 · 교과서 음식','food','たこやき','타코야키','타코야키','ようじ',''],
+  ['3차시 · 교과서 음식','tool','はし','하시','젓가락','',''],
+  ['3차시 · 교과서 음식','tool','手','테','손','',''],
+  ['3차시 · 교과서 음식','tool','スプーン','스푸-ㄴ','숟가락','',''],
+  ['3차시 · 교과서 음식','tool','ようじ','요-지','이쑤시개','',''],
+  ['3차시 · 교과서 음식','tool','ストロー','스토로-','빨대','',''],
 
+  // ── 5과 2차시 ──
   ['5과 2차시 · 주문 참사','template','これ、{B}じゃなくて {A}です。','코레, {b}쟈나쿠테 {a}데스','주문 참사','주문한 것|나온 것'],
   ['5과 2차시 · 주문 참사','a','そばセット','소바셋토','',''],
   ['5과 2차시 · 주문 참사','a','おこのみやき','오코노미야키','',''],
@@ -320,7 +161,6 @@ const BUILTIN = [
   ['5과 2차시 · 주문 참사','b','おにぎり','오니기리','',''],
   ['5과 2차시 · 주문 참사','b','ハンバーガー','함바-가-','',''],
   ['5과 2차시 · 주문 참사','b','そうめん','소멘','',''],
-
   ['5과 2차시 · 헷갈리는 짝','template1','これ、{B}じゃなくて {A}です。','코레, {b}쟈나쿠테 {a}데스','헷갈리는 짝','これ、なに？',''],
   ['5과 2차시 · 헷갈리는 짝','food','ヒョウ','효-','표범','チーター','/2-2/5/img/1_hyou.jpg'],
   ['5과 2차시 · 헷갈리는 짝','food','チーター','치-타-','치타','ヒョウ','/2-2/5/img/2_chita.jpg'],
@@ -331,6 +171,7 @@ const BUILTIN = [
   ['5과 2차시 · 헷갈리는 짝','food','トフン','토훈','도훈','シンユ','/2-2/5/img/8_dohun.jpg'],
   ['5과 2차시 · 헷갈리는 짝','food','シンユ','신유','신유','トフン','/2-2/5/img/7_shinyu.jpg'],
 
+  // ── 5과 총정리 ──
   ['5과 · 총정리','template1','{B}','{b}','5과 총정리','한국어를 보고 일본어로 말해 보세요',''],
   ['5과 · 총정리','food','젓가락으로 먹는 거야.','','1차시 · 수단','はしで 食べるんだよ。|하시데 다베룬다요',''],
   ['5과 · 총정리','food','이거 어떻게 먹는 거야?','','1차시 · 방법','これ、どうやって 食べるの？|코레, 도-얏테 다베루노',''],
@@ -345,6 +186,7 @@ const BUILTIN = [
   ['5과 · 총정리','food','같이 힘내자.','','3차시 · 의지','いっしょに がんばろうね。|잇쇼니 감바로-네',''],
   ['5과 · 총정리','food','대단히 실례했습니다.','','2차시 · 점원','たいへん しつれいしました。|타이헨 시츠레-시마시타',''],
 
+  // ── 6과 맛보기 ──
   ['6과 맛보기 · どっちが 早い？','template','{A}と {B}と、どっちが 早いかな？','{a}토 {b}토, 돗치가 하야이카나','どっちが 早い？','',''],
   ['6과 맛보기 · どっちが 早い？','a','バス','바스','버스','',''],
   ['6과 맛보기 · どっちが 早い？','b','バス','바스','버스','',''],
@@ -372,6 +214,7 @@ const BUILTIN = [
   ['6과 맛보기 · どっちが 安い？','a','すし','스시','1500円','',''],
   ['6과 맛보기 · どっちが 安い？','b','すし','스시','1500円','',''],
 
+  // ── 6과 ──
   ['6과 · ないで 제지하기','template1','{B}','{b}','ないで 제지하기','친구와 어른, 매번 상대가 바뀝니다',''],
   ['6과 · ないで 제지하기','food','廊下(ろうか)を 走(はし)る','로-카오 하시루','뛰다 · 친구','{{1류 동사}}廊下(ろうか)を 走(はし)らないで！|로-카오 하시라나이데','/2-2/6/img/n1_hashiru.jpg'],
   ['6과 · ないで 제지하기','food','ドアを 開(あ)ける','도아오 아케루','열다 · 친구','{{2류 동사}}ドアを 開(あ)けないで！|도아오 아케나이데','/2-2/6/img/n2_akeru.jpg'],
@@ -393,10 +236,42 @@ const BUILTIN = [
   ['6과 · ても いいですか','b','○','','','ええ、いいですよ。::에-, 이-데스요',''],
   ['6과 · ても いいですか','b','×','','','すみません、ちょっと……。::스미마셍, 촛토',''],
   ['6과 · ても いいですか','b','×','','','いえ、ちょっと……。::이에, 촛토',''],
-  ['6과 · ても いいですか','b','×','','','すみません、今(いま) ちょっと……。::스미마셍, 이마 촛토','']
+  ['6과 · ても いいですか','b','×','','','すみません、今(いま) ちょっと……。::스미마셍, 이마 촛토',''],
+
+  // ── 3과 카드 ──────────────────────────────────
+  ['3과 · 음식 권유','template1','{B}','{b}','음식 권유','음식을 보고 권유해 보세요',''],
+  ['3과 · 음식 권유','food','おちゃ','오차','녹차 · 친구에게','おちゃは どう？|오차와 도-?',''],
+  ['3과 · 음식 권유','food','おちゃ','오차','녹차 · 선생님에게','おちゃは どうですか。|오차와 도-데스카.',''],
+  ['3과 · 음식 권유','food','なっとう','낫토-','낫토 · 친구에게','なっとうは どう？|낫토-와 도-?',''],
+  ['3과 · 음식 권유','food','なっとう','낫토-','낫토 · 선생님에게','なっとうは どうですか。|낫토-와 도-데스카.',''],
+  ['3과 · 음식 권유','food','さしみ','사시미','생선회 · 친구에게','さしみは どう？|사시미와 도-?',''],
+  ['3과 · 음식 권유','food','さしみ','사시미','생선회 · 선생님에게','さしみは どうですか。|사시미와 도-데스카.',''],
+  ['3과 · 음식 권유','food','わがし','와가시','와가시 · 친구에게','わがしは どう？|와가시와 도-?',''],
+  ['3과 · 음식 권유','food','わがし','와가시','와가시 · 선생님에게','わがしは どうですか。|와가시와 도-데스카.',''],
+  ['3과 · 음식 권유','food','やきそば','야키소바','야키소바 · 친구에게','やきそばは どう？|야키소바와 도-?',''],
+  ['3과 · 음식 권유','food','やきそば','야키소바','야키소바 · 선생님에게','やきそばは どうですか。|야키소바와 도-데스카.',''],
+  ['3과 · 음식 권유','food','たこやき','타코야키','타코야키 · 친구에게','たこやきは どう？|타코야키와 도-?',''],
+  ['3과 · 음식 권유','food','たこやき','타코야키','타코야키 · 선생님에게','たこやきは どうですか。|타코야키와 도-데스카.',''],
+
+  // 3과 · ましょう 수락·거절
+  ['3과 · ましょう 수락·거절','template','{A}','{a}','ましょう 수락·거절','제안|대답',''],
+  ['3과 · ましょう 수락·거절','a','はなみ','하나미','꽃구경','::はなみに 行きましょう。::하나미니 이키마쇼-.',''],
+  ['3과 · ましょう 수락·거절','a','カラオケ','카라오케','노래방','::カラオケに 行きましょう。::카라오케니 이키마쇼-.',''],
+  ['3과 · ましょう 수락·거절','a','えいが','에-가','영화','::えいがを 見ましょう。::에-가오 미마쇼-.',''],
+  ['3과 · ましょう 수락·거절','a','ショッピング','숍핑구','쇼핑','::ショッピングに 行きましょう。::숍핑구니 이키마쇼-.',''],
+  ['3과 · ましょう 수락·거절','a','ボウリング','보-린구','볼링','::ボウリングに 行きましょう。::보-린구니 이키마쇼-.',''],
+  ['3과 · ましょう 수락·거절','a','サッカー','삿카-','축구','::サッカーを しましょう。::삿카-오 시마쇼-.',''],
+  ['3과 · ましょう 수락·거절','b','○','','수락','いいですね。::이-데스네.',''],
+  ['3과 · ましょう 수락·거절','b','○','','수락','いいですよ。::이-데스요.',''],
+  ['3과 · ましょう 수락·거절','b','× バイト','바이토','알바','すみません、バイトが あります。::스미마셍, 바이토가 아리마스.',''],
+  ['3과 · ましょう 수락·거절','b','× ぶかつ','부카츠','동아리','すみません、ぶかつが あります。::스미마셍, 부카츠가 아리마스.',''],
+  ['3과 · ましょう 수락·거절','b','× しゅくだい','슈쿠다이','숙제','すみません、しゅくだいが あります。::스미마셍, 슈쿠다이가 아리마스.',''],
+  ['3과 · ましょう 수락·거절','b','× テスト','테스토','시험','すみません、テストが あります。::스미마셍, 테스토가 아리마스.',''],
+  ['3과 · ましょう 수락·거절','b','× やくそく','야쿠소쿠','약속','すみません、やくそくが あります。::스미마셍, 야쿠소쿠가 아리마스.',''],
+  ['3과 · ましょう 수락·거절','b','× じゅぎょう','쥬교-','수업','すみません、じゅぎょうが あります。::스미마셍, 쥬교-가 아리마스.','']
 ];
 
-/* ── 상태 ─────────────────────────────────────── */
+
 let rows = [], setName = '', mode = 'quiz';
 let deck = [], current = null, revealed = false, roundTotal = 0, quizHint = false;
 let mixFood = null, mixTool = null, mixJudged = null, mixHint = false;
@@ -406,339 +281,98 @@ const controls = document.getElementById('controls');
 const note = document.getElementById('note');
 const setSel = document.getElementById('setSel');
 
-/* ── CSV 파싱 (따옴표 있는 칸 처리) ─────────────── */
 function parseCSV(text){
   const out=[]; let row=[], cell='', q=false;
   for(let i=0;i<text.length;i++){
     const c=text[i];
-    if(q){
-      if(c==='"'){ if(text[i+1]==='"'){cell+='"';i++;} else q=false; }
-      else cell+=c;
-    } else if(c==='"') q=true;
-    else if(c===','){ row.push(cell); cell=''; }
-    else if(c==='\n'){ row.push(cell); out.push(row); row=[]; cell=''; }
+    if(q){if(c==='"'){if(text[i+1]==='"'){cell+='"';i++;}else q=false;}else cell+=c;}
+    else if(c==='"') q=true;
+    else if(c===','){row.push(cell);cell='';}
+    else if(c==='\n'){row.push(cell);out.push(row);row=[];cell='';}
     else if(c!=='\r') cell+=c;
   }
-  if(cell.length||row.length){ row.push(cell); out.push(row); }
+  if(cell.length||row.length){row.push(cell);out.push(row);}
   return out.filter(r=>r.some(v=>v.trim()!==''));
 }
 
 async function load(){
   if(SHEET_CSV_URL){
     try{
-      const res = await fetch(SHEET_CSV_URL);
-      if(!res.ok) throw new Error(res.status);
-      const table = parseCSV(await res.text());
-      const head = table[0].map(h=>h.trim().toLowerCase());
-      const idx = n => head.indexOf(n);
-      const body = table.slice(1)
-        .map(r=>[r[idx('set')],r[idx('type')],r[idx('jp')],r[idx('yomi')],r[idx('ko')],r[idx('answer')],r[idx('img')]])
-        .map(r=>r.map(v=>(v||'').trim()))
-        .filter(r=>r[0]&&r[2]);
-      if(!body.length) throw new Error('빈 시트');
-      rows = body;
-      note.textContent = '시트에서 카드 ' + rows.length + '장을 불러왔습니다.';
-    }catch(e){
-      rows = BUILTIN;
-      note.innerHTML = '<span class="err">시트를 불러오지 못했습니다.</span> 내장 카드로 진행합니다. 시트가 “웹에 게시”되어 있는지, 주소가 CSV 형식인지 확인해 주세요.';
-    }
-  } else {
-    rows = BUILTIN;
-    note.textContent = '내장 카드로 동작 중입니다. 파일 상단의 SHEET_CSV_URL에 시트 주소를 넣으면 카드를 시트에서 관리할 수 있습니다.';
-  }
+      const res=await fetch(SHEET_CSV_URL);if(!res.ok)throw new Error(res.status);
+      const table=parseCSV(await res.text());const head=table[0].map(h=>h.trim().toLowerCase());
+      const idx=n=>head.indexOf(n);
+      const body=table.slice(1).map(r=>[r[idx('set')],r[idx('type')],r[idx('jp')],r[idx('yomi')],r[idx('ko')],r[idx('answer')],r[idx('img')]]).map(r=>r.map(v=>(v||'').trim())).filter(r=>r[0]&&r[2]);
+      if(!body.length)throw new Error('빈 시트');rows=body;
+      note.textContent='시트에서 카드 '+rows.length+'장을 불러왔습니다.';
+    }catch(e){rows=BUILTIN;note.innerHTML='<span class="err">시트를 불러오지 못했습니다.</span> 내장 카드로 진행합니다.';}
+  }else{rows=BUILTIN;note.textContent='내장 카드로 동작 중입니다.';}
   let sets=[...new Set(rows.map(r=>r[0]))];
-  if(ONLY.length){
-    const picked = sets.filter(s => ONLY.some(k => s.includes(k)));
-    if(picked.length) sets = picked;
-  }
-  // 걸러진 세트의 카드만 남긴다
-  rows = rows.filter(r => sets.includes(r[0]));
-  setSel.innerHTML = sets.map(s=>`<option>${s}</option>`).join('');
-  setSel.style.display = sets.length > 1 ? '' : 'none';
-  setName = sets[0];
-  reset();
+  if(ONLY.length){const picked=sets.filter(s=>ONLY.some(k=>s.includes(k)));if(picked.length)sets=picked;}
+  rows=rows.filter(r=>sets.includes(r[0]));
+  setSel.innerHTML=sets.map(s=>`<option>${s}</option>`).join('');
+  setSel.style.display=sets.length>1?'':'none';setName=sets[0];reset();
 }
 
-/* ── 도우미 ───────────────────────────────────── */
-const A_TYPES = ['food','a','pile1'];
-const B_TYPES = ['tool','b','pile2'];
-const inSet = () => rows.filter(r=>r[0]===setName);
-const pileA = () => inSet().filter(r=>A_TYPES.includes(r[1]));
-const pileB = () => inSet().filter(r=>B_TYPES.includes(r[1]));
-const pick = t => t==='food' ? pileA() : pileB();
-const tmpl = () => inSet().find(r=>r[1]==='template');
-const tmpl1 = () => inSet().find(r=>r[1]==='template1');
-const yomiInA = jp => { const t = pileA().find(r=>r[2]===jp); return t?t[3]:''; };
-const hasAnswers = () => pileA().some(r=>r[5] && !r[5].includes('::'));
-const pileTags = () => { const t=tmpl(); const parts=(t&&t[5]||'').split('|'); return [ (parts[0]||'').trim(), (parts[1]||'').trim() ]; };
-const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; };
-const yomiOf = jp => { const t = pileB().find(r=>r[2]===jp); return t?t[3]:''; };
+const A_TYPES=['food','a','pile1'];const B_TYPES=['tool','b','pile2'];
+const inSet=()=>rows.filter(r=>r[0]===setName);
+const pileA=()=>inSet().filter(r=>A_TYPES.includes(r[1]));
+const pileB=()=>inSet().filter(r=>B_TYPES.includes(r[1]));
+const tmpl=()=>inSet().find(r=>r[1]==='template');
+const tmpl1=()=>inSet().find(r=>r[1]==='template1');
+const yomiInA=jp=>{const t=pileA().find(r=>r[2]===jp);return t?t[3]:'';};
+const hasAnswers=()=>pileA().some(r=>r[5]&&!r[5].includes('::'));
+const pileTags=()=>{const t=tmpl();const parts=(t&&t[5]||'').split('|');return[(parts[0]||'').trim(),(parts[1]||'').trim()];};
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const yomiOf=jp=>{const t=pileB().find(r=>r[2]===jp);return t?t[3]:'';};
+function pieceOf(card){const raw=(card&&card[5])||'';const parts=raw.split('::');if(parts.length>=3)return{hint:parts[0].trim(),jp:parts[1].trim(),yomi:parts[2].trim()};if(parts.length===2)return{hint:'',jp:parts[0].trim(),yomi:parts[1].trim()};return{hint:'',jp:card[2],yomi:card[3]};}
+function buildSentence1(card){const t=tmpl1();const jpT=t?t[2]:'{B}で 食べるんだよ。';const yoT=t?t[3]:'{b}데 다베룬다요';const[B,bGiven]=ansParts(card);const b=bGiven||yomiOf(B)||yomiInA(B);const fill=(str,map)=>str.replace(/\{([AaBb])\}/g,(_,k)=>map[k]||'');return{jp:fill(jpT,{A:card[2],B}),yomi:fill(yoT,{a:card[3],b})};}
+function buildSentence(a,b){const t=tmpl();const jpT=t?t[2]:'{A}は {B}で 食べるんだよ。';const yoT=t?t[3]:'{a}와 {b}데 다베룬다요';const pa=pieceOf(a),pb=pieceOf(b);const fill=(str,map)=>str.replace(/\{([AaBb])\}/g,(_,k)=>map[k]||'');if(!/\{B\}/.test(jpT)){return{twoLine:true,line1:fill(jpT,{A:pa.jp,a:pa.yomi}),line1y:fill(yoT,{a:pa.yomi}),line2:pb.jp,line2y:pb.yomi};}return{twoLine:false,jp:fill(jpT,{A:pa.jp,B:pb.jp}),yomi:fill(yoT,{a:pa.yomi,b:pb.yomi})};}
+const esc=s=>(s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const jpHTML=s=>esc(s).replace(/([一-龯々]+)\(([ぁ-ゖァ-ヺー]+)\)/g,'<ruby>$1<rt>$2</rt></ruby>');
 
-// answer가 "힌트::문장 조각::발음"이면 카드와 문장을 분리해서 사용한다.
-function pieceOf(card){
-  const raw = (card && card[5]) || '';
-  const parts = raw.split('::');
-  if(parts.length >= 3) return { hint:parts[0].trim(), jp:parts[1].trim(), yomi:parts[2].trim() };
-  if(parts.length === 2) return { hint:'', jp:parts[0].trim(), yomi:parts[1].trim() };
-  return { hint:'', jp:card[2], yomi:card[3] };
-}
+function reset(){const all=shuffle(pileA());roundTotal=Math.min(ROUND,all.length);deck=all.slice(0,roundTotal);current=null;revealed=false;quizHint=false;mixFood=mixTool=mixJudged=null;mixHint=false;render();}
 
-// 한 장 뽑기 문장. {A}=카드, {B}=그 카드의 정답
-function buildSentence1(card){
-  const t = tmpl1();
-  const jpT = t ? t[2] : '{B}で 食べるんだよ。';
-  const yoT = t ? t[3] : '{b}데 다베룬다요';
-  const [B, bGiven] = ansParts(card);
-  const b = bGiven || yomiOf(B) || yomiInA(B);
-  const fill = (str, map) => str.replace(/\{([AaBb])\}/g, (_, k) => map[k] || '');
-  return {
-    jp: fill(jpT, { A:card[2], B }),
-    yomi: fill(yoT, { a:card[3], b })
-  };
-}
+function stripHTML(card,opts={}){const src=(card[6]||'').trim();const cls=(opts.small?'strip small':'strip')+(src?' has-photo':'');const tag=opts.tag?`<div class="tag">${esc(opts.tag)}</div>`:'';const stamp=opts.stamp?`<div class="stamp press">${esc(opts.stamp)}</div>`:'';const photo=src?`<img class="photo" src="${esc(src)}" alt="" onerror="this.remove()">`:'';const ox=card[2]==='○'||card[2]==='×';return`<div class="${cls}">${tag}${photo}<div class="jp${ox?' ox':''}">${jpHTML(card[2])}</div><div class="yomi">${esc(card[3])}</div><div class="gloss">${esc(card[4])}</div>${stamp}</div>`;}
 
-// 두 장 뽑기 문장. {A}{B}=일본어, {a}{b}=한글 발음
-function buildSentence(a, b){
-  const t = tmpl();
-  const jpT = t ? t[2] : '{A}は {B}で 食べるんだよ。';
-  const yoT = t ? t[3] : '{a}와 {b}데 다베룬다요';
-  const pa = pieceOf(a), pb = pieceOf(b);
-  const fill = (str, map) => str.replace(/\{([AaBb])\}/g, (_, k) => map[k] || '');
-  if(!/\{B\}/.test(jpT)){
-    return { twoLine:true,
-      line1:fill(jpT,{A:pa.jp,a:pa.yomi}), line1y:fill(yoT,{a:pa.yomi}),
-      line2:pb.jp, line2y:pb.yomi };
-  }
-  return { twoLine:false,
-    jp:fill(jpT,{A:pa.jp,B:pb.jp}), yomi:fill(yoT,{a:pa.yomi,b:pb.yomi}) };
-}
-const esc = s => (s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-// 漢字(かな) 표기를 실제 후리가나로 바꾼다.
-const jpHTML = s => esc(s).replace(/([一-龯々]+)\(([ぁ-ゖァ-ヺー]+)\)/g,'<ruby>$1<rt>$2</rt></ruby>');
+function render(){const quizTab=document.getElementById('tab-quiz');const mixTab=document.getElementById('tab-mix');const t=tmpl();const quizOK=hasAnswers();quizTab.style.display=quizOK?'':'none';const t1=tmpl1();quizTab.textContent=t1&&t1[4]?t1[4]:'먹는 법 퀴즈';mixTab.textContent=t&&t[4]?t[4]:'도구 뽑기';const mixOK=pileB().length>0;mixTab.style.display=mixOK?'':'none';if(!quizOK)mode='mix';if(!mixOK)mode='quiz';quizTab.setAttribute('aria-selected',mode==='quiz');mixTab.setAttribute('aria-selected',mode==='mix');mode==='quiz'?renderQuiz():renderMix();}
 
-function reset(){
-  const all = shuffle(pileA());
-  roundTotal = Math.min(ROUND, all.length);
-  deck = all.slice(0, roundTotal);
-  current = null; revealed = false; quizHint = false;
-  mixFood = mixTool = mixJudged = null; mixHint = false;
-  render();
-}
-
-function stripHTML(card, opts={}){
-  const src = (card[6] || '').trim();
-  const cls = (opts.small ? 'strip small' : 'strip') + (src ? ' has-photo' : '');
-  const tag = opts.tag ? `<div class="tag">${esc(opts.tag)}</div>` : '';
-  const stamp = opts.stamp ? `<div class="stamp press">${esc(opts.stamp)}</div>` : '';
-  const photo = src ? `<img class="photo" src="${esc(src)}" alt="" onerror="this.remove()">` : '';
-  const ox = card[2] === '○' || card[2] === '×';
-  return `<div class="${cls}">${tag}${photo}
-    <div class="jp${ox ? ' ox' : ''}">${jpHTML(card[2])}</div>
-    <div class="yomi">${esc(card[3])}</div>
-    <div class="gloss">${esc(card[4])}</div>${stamp}</div>`;
-}
-
-/* ── 화면 그리기 ───────────────────────────────── */
-function render(){
-  const quizTab = document.getElementById('tab-quiz');
-  const mixTab = document.getElementById('tab-mix');
-  const t = tmpl();
-  const quizOK = hasAnswers();
-  quizTab.style.display = quizOK ? '' : 'none';
-  const t1 = tmpl1();
-  quizTab.textContent = t1 && t1[4] ? t1[4] : '먹는 법 퀴즈';
-  mixTab.textContent = t && t[4] ? t[4] : '도구 뽑기';
-  const mixOK = pileB().length > 0;
-  mixTab.style.display = mixOK ? '' : 'none';
-  if(!quizOK) mode = 'mix';
-  if(!mixOK) mode = 'quiz';
-  quizTab.setAttribute('aria-selected', mode==='quiz');
-  mixTab.setAttribute('aria-selected', mode==='mix');
-  mode==='quiz' ? renderQuiz() : renderMix();
-}
-
-const promptOf = () => { const t = tmpl1(); return (t && t[5]) ? t[5] : 'これ、どうやって 食べるの？'; };
-
-// 정답 맨 앞의 {{힌트}}는 힌트 버튼에서만 보여 준다.
-function splitHint(raw){
-  const m = raw.match(/^\{\{(.*?)\}\}/);
-  return m ? { hint:m[1].trim(), rest:raw.slice(m[0].length) } : { hint:'', rest:raw };
-}
-const hintOf = card => {
-  const raw = (card && card[5]) || '';
-  if(raw.includes('::')) return raw.split('::')[0].trim();
-  return splitHint(raw).hint;
-};
-const ansParts = card => {
-  const { rest:raw } = splitHint((card && card[5]) || '');
-  const i = raw.indexOf('|');
-  return i < 0 ? [raw, ''] : [raw.slice(0, i).trim(), raw.slice(i + 1).trim()];
-};
-
-// 정답이 같은 더미 안의 다른 카드를 가리키면 '짝' 세트로 본다
-const partnerOf = card => { const a = ansParts(card)[0]; return a ? pileA().find(r=>r[2]===a) : null; };
-
-// 문장 틀에서 카드 사이/뒤에 오는 말을 뽑아 카드 위 라벨로 쓴다
-// 예: 「これ、{B}じゃなくて {A}です。」 → ['じゃなくて', 'です。']
-function pairLabels(){
-  const t = tmpl1();
-  if(!t) return null;
-  const jp = t[2] || '';
-  const order = [];
-  jp.replace(/\{([AB])\}/g, (m, k) => { order.push(k); return m; });
-  if(order.length < 2) return null;
-  const parts = jp.split(/\{[AB]\}/);
-  return { order, mid: (parts[1]||'').trim(), post: (parts[2]||'').trim() };
-}
+const promptOf=()=>{const t=tmpl1();return(t&&t[5])?t[5]:'これ、どうやって 食べるの？';};
+function splitHint(raw){const m=raw.match(/^\{\{(.*?)\}\}/);return m?{hint:m[1].trim(),rest:raw.slice(m[0].length)}:{hint:'',rest:raw};}
+const hintOf=card=>{const raw=(card&&card[5])||'';if(raw.includes('::'))return raw.split('::')[0].trim();return splitHint(raw).hint;};
+const ansParts=card=>{const{rest:raw}=splitHint((card&&card[5])||'');const i=raw.indexOf('|');return i<0?[raw,'']:[raw.slice(0,i).trim(),raw.slice(i+1).trim()];};
+const partnerOf=card=>{const a=ansParts(card)[0];return a?pileA().find(r=>r[2]===a):null;};
+function pairLabels(){const t=tmpl1();if(!t)return null;const jp=t[2]||'';const order=[];jp.replace(/\{([AB])\}/g,(m,k)=>{order.push(k);return m;});if(order.length<2)return null;const parts=jp.split(/\{[AB]\}/);return{order,mid:(parts[1]||'').trim(),post:(parts[2]||'').trim()};}
 
 function renderQuiz(){
-  const total = roundTotal;
-  const done = total - deck.length - (current?1:0);
-
-  if(!current && !deck.length && total){
-    stage.innerHTML = `<div class="placeholder">카드 ${total}장을 모두 돌았습니다.<br>다시 섞으면 다른 카드가 나와요.</div>`;
-    controls.innerHTML = `<button class="btn shu" id="again">다시 섞기</button>`;
-    document.getElementById('again').onclick = reset;
-    return;
-  }
-  if(!current){
-    stage.innerHTML = `<div class="counter">이번 판 ${total}장 · 전체 ${pileA().length}장 중에서</div>
-      <div class="placeholder">${partnerOf(deck[deck.length-1]) ? '두 장을 나란히 뽑습니다.<br>고쳐 말해 보세요.' : '카드를 뽑아 짝에게 보여 주세요.<br>' + esc(promptOf())}</div>`;
-    controls.innerHTML = `<button class="btn" id="draw">카드 뽑기</button>`;
-    document.getElementById('draw').onclick = () => { current = deck.pop(); revealed = false; quizHint = false; render(); };
-    return;
-  }
-
-  const answerRaw = ansParts(current)[0];
-  const answer = answerRaw.length <= 6 ? answerRaw : '';
-  const sent = buildSentence1(current);
-  const partner = partnerOf(current);
-  const L = partner ? pairLabels() : null;
-  const hint = hintOf(current);
-  const showHint = !partner && hint && !revealed;
-
-  if(partner && L){
-    // 짝 세트 : 두 장을 나란히 보여 준다
-    const first  = L.order[0] === 'A' ? current : partner;
-    const second = L.order[0] === 'A' ? partner : current;
-    stage.innerHTML = `<div class="counter">${done + 1} / ${total}</div>
-      <div class="strip-row">
-        ${stripHTML(first,  { small:true, tag:L.mid })}
-        ${stripHTML(second, { small:true, tag:L.post })}
-      </div>
-      ${revealed ? `<div class="sentence">${jpHTML(sent.jp)}
-        <span class="s-yomi">${esc(sent.yomi)}</span></div>` : ''}`;
-  } else {
-    stage.innerHTML = `<div class="counter">${done + 1} / ${total}</div>
-      ${stripHTML(current, { tag: promptOf(), stamp: revealed ? answer : '' })}
-      ${showHint && quizHint ? `<div class="hint">${esc(hint)}</div>` : ''}
-      ${revealed ? `<div class="sentence">${jpHTML(sent.jp)}
-        <span class="s-yomi">${esc(sent.yomi)}</span></div>` : ''}`;
-  }
-
-  const hintBtn = showHint ? `<button class="btn ghost" id="qhint">${quizHint ? '힌트 숨기기' : '힌트 보기'}</button>` : '';
-  controls.innerHTML = revealed
-    ? `<button class="btn" id="next">${deck.length ? '다음 카드' : '결과 보기'}</button>
-       <button class="btn ghost" id="reshuffle">처음부터</button>`
-    : hintBtn + `<button class="btn shu" id="flip">${partner ? '문장 확인' : '뒤집어서 확인'}</button>`;
-
-  if(revealed){
-    document.getElementById('next').onclick = () => { current = deck.length ? deck.pop() : null; revealed = false; quizHint = false; if(!deck.length && !current) current=null; render(); };
-    document.getElementById('reshuffle').onclick = reset;
-  } else {
-    document.getElementById('flip').onclick = () => { revealed = true; render(); };
-    if(showHint) document.getElementById('qhint').onclick = () => { quizHint = !quizHint; render(); };
-  }
+  const total=roundTotal;const done=total-deck.length-(current?1:0);
+  if(!current&&!deck.length&&total){stage.innerHTML=`<div class="placeholder">카드 ${total}장을 모두 돌았습니다.<br>다시 섞으면 다른 카드가 나와요.</div>`;controls.innerHTML=`<button class="btn shu" id="again">다시 섞기</button>`;document.getElementById('again').onclick=reset;return;}
+  if(!current){stage.innerHTML=`<div class="counter">이번 판 ${total}장 · 전체 ${pileA().length}장 중에서</div><div class="placeholder">${partnerOf(deck[deck.length-1])?'두 장을 나란히 뽑습니다.<br>고쳐 말해 보세요.':'카드를 뽑아 짝에게 보여 주세요.<br>'+esc(promptOf())}</div>`;controls.innerHTML=`<button class="btn" id="draw">카드 뽑기</button>`;document.getElementById('draw').onclick=()=>{current=deck.pop();revealed=false;quizHint=false;render();};return;}
+  const answerRaw=ansParts(current)[0];const answer=answerRaw.length<=6?answerRaw:'';const sent=buildSentence1(current);const partner=partnerOf(current);const L=partner?pairLabels():null;const hint=hintOf(current);const showHint=!partner&&hint&&!revealed;
+  if(partner&&L){const first=L.order[0]==='A'?current:partner;const second=L.order[0]==='A'?partner:current;stage.innerHTML=`<div class="counter">${done+1} / ${total}</div><div class="strip-row">${stripHTML(first,{small:true,tag:L.mid})}${stripHTML(second,{small:true,tag:L.post})}</div>${revealed?`<div class="sentence">${jpHTML(sent.jp)}<span class="s-yomi">${esc(sent.yomi)}</span></div>`:''}`;}
+  else{stage.innerHTML=`<div class="counter">${done+1} / ${total}</div>${stripHTML(current,{tag:promptOf(),stamp:revealed?answer:''})}${showHint&&quizHint?`<div class="hint">${esc(hint)}</div>`:''}${revealed?`<div class="sentence">${jpHTML(sent.jp)}<span class="s-yomi">${esc(sent.yomi)}</span></div>`:''}`;}
+  const hintBtn=showHint?`<button class="btn ghost" id="qhint">${quizHint?'힌트 숨기기':'힌트 보기'}</button>`:'';
+  controls.innerHTML=revealed?`<button class="btn" id="next">${deck.length?'다음 카드':'결과 보기'}</button><button class="btn ghost" id="reshuffle">처음부터</button>`:hintBtn+`<button class="btn shu" id="flip">${partner?'문장 확인':'뒤집어서 확인'}</button>`;
+  if(revealed){document.getElementById('next').onclick=()=>{current=deck.length?deck.pop():null;revealed=false;quizHint=false;if(!deck.length&&!current)current=null;render();};document.getElementById('reshuffle').onclick=reset;}
+  else{document.getElementById('flip').onclick=()=>{revealed=true;render();};if(showHint)document.getElementById('qhint').onclick=()=>{quizHint=!quizHint;render();};}
 }
 
 function renderMix(){
-  const tags = pileTags();
-  if(!mixFood){
-    stage.innerHTML = `<div class="placeholder">두 장을 한 번에 뽑습니다.<br>나온 문장을 말해 보세요.</div>`;
-    controls.innerHTML = `<button class="btn" id="spin">두 장 뽑기</button>`;
-    document.getElementById('spin').onclick = spin;
-    return;
-  }
-
-  const judgeMode = hasAnswers();
-  const ok = mixFood[5] === mixTool[2];
-  const sent = buildSentence(mixFood, mixTool);
-  const showSentence = judgeMode || mixJudged !== null;
-  const pa = pieceOf(mixFood);
-  const showHint = !judgeMode && pa.hint && mixJudged === null;
-
-  const sentenceHTML = !showSentence ? '' : sent.twoLine
-    ? `<div class="sentence">${jpHTML(sent.line1)}<span class="s-yomi">${esc(sent.line1y)}</span></div>
-       <div class="sentence">${jpHTML(sent.line2)}<span class="s-yomi">${esc(sent.line2y)}</span></div>`
-    : `<div class="sentence">${jpHTML(sent.jp)}<span class="s-yomi">${esc(sent.yomi)}</span></div>`;
-
-  stage.innerHTML = `
-    <div class="strip-row">
-      ${stripHTML(mixFood,{small:true, tag:tags[0]})}
-      ${stripHTML(mixTool,{small:true, tag:tags[1]})}
-    </div>
-    ${showHint && mixHint ? `<div class="hint">${esc(pa.hint)}</div>` : ''}
-    ${sentenceHTML}
-    <div class="verdict ${judgeMode && mixJudged !== null ? (mixJudged===ok?'ok':'no') : ''}">${
-      !judgeMode || mixJudged === null ? '' :
-      (mixJudged === ok
-        ? (ok ? 'ほんとう！ <small>혼토- · 맞는 조합이에요</small>' : 'うそ！ <small>우소 · 맞아요, 말이 안 되죠</small>')
-        : (ok ? 'あれ？ <small>아레 · 사실 이건 맞는 조합이에요</small>' : 'あれ？ <small>아레 · 이건 좀 이상한데요</small>'))
-    }</div>`;
-
-  if(judgeMode){
-    controls.innerHTML = mixJudged === null
-      ? `<button class="btn two" id="hon">ほんとう？<span>혼토-</span></button>
-         <button class="btn shu two" id="uso">うそ！<span>우소</span></button>`
-      : `<button class="btn" id="spin2">다시 뽑기</button>`;
-    if(mixJudged === null){
-      document.getElementById('hon').onclick = () => { mixJudged = true; render(); };
-      document.getElementById('uso').onclick = () => { mixJudged = false; render(); };
-    } else {
-      document.getElementById('spin2').onclick = spin;
-    }
-  } else {
-    const hintBtn = showHint ? `<button class="btn ghost" id="hint">${mixHint ? '힌트 숨기기' : '힌트 보기'}</button>` : '';
-    controls.innerHTML = mixJudged === null
-      ? hintBtn + `<button class="btn shu" id="reveal">문장 확인</button>`
-      : `<button class="btn" id="spin2">다시 뽑기</button>`;
-    if(mixJudged === null){
-      document.getElementById('reveal').onclick = () => { mixJudged = true; render(); };
-      if(showHint) document.getElementById('hint').onclick = () => { mixHint = !mixHint; render(); };
-    } else {
-      document.getElementById('spin2').onclick = spin;
-    }
-  }
+  const tags=pileTags();
+  if(!mixFood){stage.innerHTML=`<div class="placeholder">두 장을 한 번에 뽑습니다.<br>나온 문장을 말해 보세요.</div>`;controls.innerHTML=`<button class="btn" id="spin">두 장 뽑기</button>`;document.getElementById('spin').onclick=spin;return;}
+  const judgeMode=hasAnswers();const ok=mixFood[5]===mixTool[2];const sent=buildSentence(mixFood,mixTool);const showSentence=judgeMode||mixJudged!==null;const pa=pieceOf(mixFood);const showHint=!judgeMode&&pa.hint&&mixJudged===null;
+  const sentenceHTML=!showSentence?'':sent.twoLine?`<div class="sentence">${jpHTML(sent.line1)}<span class="s-yomi">${esc(sent.line1y)}</span></div><div class="sentence">${jpHTML(sent.line2)}<span class="s-yomi">${esc(sent.line2y)}</span></div>`:`<div class="sentence">${jpHTML(sent.jp)}<span class="s-yomi">${esc(sent.yomi)}</span></div>`;
+  stage.innerHTML=`<div class="strip-row">${stripHTML(mixFood,{small:true,tag:tags[0]})}${stripHTML(mixTool,{small:true,tag:tags[1]})}</div>${showHint&&mixHint?`<div class="hint">${esc(pa.hint)}</div>`:''}${sentenceHTML}<div class="verdict ${judgeMode&&mixJudged!==null?(mixJudged===ok?'ok':'no'):''}">${!judgeMode||mixJudged===null?'':(mixJudged===ok?(ok?'ほんとう！ <small>혼토- · 맞는 조합이에요</small>':'うそ！ <small>우소 · 맞아요, 말이 안 되죠</small>'):(ok?'あれ？ <small>아레 · 사실 이건 맞는 조합이에요</small>':'あれ？ <small>아레 · 이건 좀 이상한데요</small>'))}</div>`;
+  if(judgeMode){controls.innerHTML=mixJudged===null?`<button class="btn two" id="hon">ほんとう？<span>혼토-</span></button><button class="btn shu two" id="uso">うそ！<span>우소</span></button>`:`<button class="btn" id="spin2">다시 뽑기</button>`;if(mixJudged===null){document.getElementById('hon').onclick=()=>{mixJudged=true;render();};document.getElementById('uso').onclick=()=>{mixJudged=false;render();};}else{document.getElementById('spin2').onclick=spin;}}
+  else{const hintBtn=showHint?`<button class="btn ghost" id="hint">${mixHint?'힌트 숨기기':'힌트 보기'}</button>`:'';controls.innerHTML=mixJudged===null?hintBtn+`<button class="btn shu" id="reveal">문장 확인</button>`:`<button class="btn" id="spin2">다시 뽑기</button>`;if(mixJudged===null){document.getElementById('reveal').onclick=()=>{mixJudged=true;render();};if(showHint)document.getElementById('hint').onclick=()=>{mixHint=!mixHint;render();};}else{document.getElementById('spin2').onclick=spin;}}
 }
 
-function spin(){
-  const f = pileA(), t = pileB();
-  const r = a => a[Math.floor(Math.random()*a.length)];
-  mixFood = r(f); mixTool = r(t);
-  // 같은 것이 두 장 나오면 문장이 성립하지 않으므로 다시 뽑음
-  let guard = 0;
-  while(mixFood[2] === mixTool[2] && t.length > 1 && guard++ < 20) mixTool = r(t);
-  mixJudged = null; mixHint = false;
-  render();
-}
+function spin(){const f=pileA(),t=pileB();const r=a=>a[Math.floor(Math.random()*a.length)];mixFood=r(f);mixTool=r(t);let guard=0;while(mixFood[2]===mixTool[2]&&t.length>1&&guard++<20)mixTool=r(t);mixJudged=null;mixHint=false;render();}
 
-/* ── 이벤트 ───────────────────────────────────── */
-document.getElementById('tab-quiz').onclick = () => { mode='quiz'; render(); };
-document.getElementById('tab-mix').onclick  = () => { mode='mix';  render(); };
-setSel.onchange = e => { setName = e.target.value; reset(); };
-document.getElementById('yomiBtn').onclick = e => {
-  const on = document.body.classList.toggle('hide-yomi') === false;
-  e.currentTarget.setAttribute('aria-pressed', on);
-  e.currentTarget.textContent = on ? '발음 숨기기' : '발음 보기';
-};
-
-if(URLOPT.get('yomi') === 'off'){
-  document.body.classList.add('hide-yomi');
-  const b = document.getElementById('yomiBtn');
-  b.setAttribute('aria-pressed', 'false');
-  b.textContent = '발음 보기';
-}
-
+document.getElementById('tab-quiz').onclick=()=>{mode='quiz';render();};
+document.getElementById('tab-mix').onclick=()=>{mode='mix';render();};
+setSel.onchange=e=>{setName=e.target.value;reset();};
+document.getElementById('yomiBtn').onclick=e=>{const on=document.body.classList.toggle('hide-yomi')===false;e.currentTarget.setAttribute('aria-pressed',on);e.currentTarget.textContent=on?'발음 숨기기':'발음 보기';};
+if(URLOPT.get('yomi')==='off'){document.body.classList.add('hide-yomi');const b=document.getElementById('yomiBtn');b.setAttribute('aria-pressed','false');b.textContent='발음 보기';}
 load();
 </script>
 </body>
