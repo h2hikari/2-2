@@ -1,1 +1,282 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>일본어 말하기 수행평가 연습</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500;700;800;900&family=Noto+Serif+KR:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#F0F7F5; --ink:#1E2D2A; --button:#2D8C75; --button-hover:#226E5C;
+      --muted:#5C7570; --danger:#D94B4B; --border:#CBE3DC; --white:#FFF;
+      --card-1:#E6F5F0; --card-2:#EBF7E6; --card-3:#E6F2F7; --card-4:#F2E6F7;
+      --shadow:0 10px 25px rgba(35,70,60,.08);
+    }
+    * { box-sizing:border-box; }
+    html,body { margin:0; min-height:100%; background:var(--bg); color:var(--ink); }
+    body { font-family:'Noto Sans KR',sans-serif; -webkit-font-smoothing:antialiased; }
+    button { font:inherit; }
+    .app { min-height:100vh; display:flex; flex-direction:column; }
+    .topbar { min-height:88px; display:flex; align-items:center; justify-content:space-between; gap:18px; padding:14px 28px; background:#fff; border-bottom:2px solid #D8ECE6; }
+    .brand-title { font-family:'Noto Serif KR',serif; font-size:27px; font-weight:900; color:#1B352E; }
+    .brand-subtitle { margin-top:2px; font-size:15px; font-weight:700; color:var(--muted); }
+    .timer-box { min-width:155px; text-align:right; }
+    .timer-label { font-size:14px; font-weight:800; color:var(--muted); }
+    #timer { font-size:40px; line-height:1.05; font-weight:900; font-variant-numeric:tabular-nums; letter-spacing:.02em; }
+    #timer.overtime { color:var(--danger); }
+    main { flex:1; display:flex; flex-direction:column; padding:24px 28px 18px; }
+    .guide { margin:0 0 20px; text-align:center; font-size:18px; font-weight:800; color:#31584E; }
+    .cards { flex:1; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:18px; align-items:stretch; }
+    .card { min-height:380px; border:2px solid var(--border); border-radius:18px; background:#fff; box-shadow:var(--shadow); overflow:hidden; display:flex; flex-direction:column; }
+    .card.placeholder { align-items:center; justify-content:center; border-style:dashed; box-shadow:none; background:rgba(235,247,243,.55); }
+    .placeholder-mark { font-family:'Noto Serif KR',serif; font-size:72px; font-weight:900; color:#82B4A7; }
+    .placeholder-text { font-size:17px; line-height:1.5; font-weight:800; text-align:center; color:var(--muted); }
+    .card-header { padding:16px 20px; display:flex; align-items:center; justify-content:space-between; gap:8px; border-bottom:2px solid rgba(0,0,0,.05); }
+    .card[data-area="1"] .card-header { background:var(--card-1); }
+    .card[data-area="2"] .card-header { background:var(--card-2); }
+    .card[data-area="3"] .card-header { background:var(--card-3); }
+    .card[data-area="4"] .card-header { background:var(--card-4); }
+    .area-title { font-size:21px; font-weight:900; color:#17332B; }
+    .area-type { padding:4px 10px; border-radius:8px; background:rgba(255,255,255,.85); font-size:15px; font-weight:800; color:#366155; white-space:nowrap; }
+    .card-body { flex:1; display:flex; flex-direction:column; justify-content:space-between; padding:24px 20px; }
+    .content-top { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:10px 0; text-align:center; }
+    .task-title { font-size:26px; line-height:1.45; font-weight:900; color:#122621; word-break:keep-all; }
+    .task-hint { margin-top:12px; font-size:17px; line-height:1.5; font-weight:700; color:#8A9B96; word-break:keep-all; }
+    .ox-badge { margin-top:14px; display:inline-block; padding:6px 18px; border:2px solid; border-radius:999px; font-size:22px; font-weight:900; }
+    .ox-badge.yes { background:#E1F5EC; color:#1C7A58; border-color:#AEE4CE; }
+    .ox-badge.no { background:#FDE8E8; color:#C03939; border-color:#F8C3C3; }
+    .divider { width:100%; margin:18px 0; border-top:2px dashed var(--border); }
+    .target { display:flex; align-items:center; justify-content:center; padding:12px 16px; border:1px solid #D8ECE6; border-radius:12px; background:#F2F8F6; font-size:20px; font-weight:900; color:#23463C; }
+    .target.teacher { background:#EEF4FB; border-color:#D3E2F2; }
+    .speech { margin-left:8px; padding:3px 10px; border:1px solid #C9DED7; border-radius:8px; background:#fff; font-size:16px; font-weight:800; color:#366155; }
+    .controls { min-height:145px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding-top:18px; }
+    .button-row { display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; }
+    .primary { min-width:300px; min-height:64px; padding:12px 38px; border:0; border-radius:18px; background:var(--button); color:#fff; font-size:26px; font-weight:900; box-shadow:0 8px 20px rgba(45,140,117,.30); cursor:pointer; }
+    .primary:hover { background:var(--button-hover); }
+    .secondary { min-height:54px; padding:10px 22px; border:2px solid #9CCBC0; border-radius:15px; background:#fff; color:#226E5C; font-size:18px; font-weight:900; cursor:pointer; }
+    .secondary[hidden] { display:none; }
+    #message { min-height:24px; margin-top:8px; text-align:center; color:var(--muted); font-size:16px; font-weight:700; }
+    #message.error { color:var(--danger); }
+    .fluency-guide { margin:10px auto 0; padding:9px 18px; border:1px solid #CBE3DC; border-radius:12px; background:rgba(255,255,255,.8); color:#49635C; font-size:14px; font-weight:800; text-align:center; }
+    .fluency-guide strong { color:#23463C; }
+    @media (max-width:960px) {
+      .topbar { min-height:76px; padding:10px 16px; }
+      .brand-title { font-size:22px; } .brand-subtitle { display:none; }
+      main { padding:16px 14px 12px; }
+      .guide { font-size:15px; margin-bottom:12px; }
+      .cards { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+      .card { min-height:310px; border-radius:14px; }
+      .card-header { padding:12px 14px; }
+      .area-title { font-size:18px; } .area-type { font-size:13px; }
+      .card-body { padding:16px 14px; }
+      .task-title { font-size:20px; } .task-hint { font-size:16px; }
+      .target { font-size:17px; } .speech { font-size:14px; }
+      .controls { min-height:125px; padding-top:12px; }
+      .primary { min-width:250px; min-height:56px; font-size:22px; }
+    }
+    @media (max-width:600px) {
+      .topbar { position:sticky; top:0; z-index:10; }
+      .brand-title { font-size:18px; }
+      #timer { font-size:32px; }
+      .timer-box { min-width:108px; }
+      .cards { grid-template-columns:1fr; }
+      .card { min-height:330px; }
+      .primary { width:100%; }
+      .secondary { flex:1; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div>
+      <div class="brand-title">일본어 말하기 연습</div>
+      <div class="brand-subtitle">실제 평가와 같은 방식으로 연습해 보세요.</div>
+    </div>
+    <div class="timer-box">
+      <div class="timer-label" id="timerLabel">대기</div>
+      <div id="timer">00:00</div>
+    </div>
+  </header>
+  <main>
+    <p class="guide">카드를 뽑는 즉시 타이머가 시작됩니다. 대화 상대와 말투를 확인하며 네 상황을 차례로 연습해 보세요.</p>
+    <section class="cards" id="cards" aria-live="polite"></section>
+    <section class="controls">
+      <div class="button-row">
+        <button type="button" class="primary" id="drawButton">한 번에 뽑기</button>
+        <button type="button" class="secondary" id="redrawButton" hidden>다시 뽑기</button>
+        <button type="button" class="secondary" id="resetButton" hidden>처음으로</button>
+      </div>
+      <div id="message">[한 번에 뽑기] 버튼을 누르면 연습이 시작됩니다.</div>
+      <div class="fluency-guide"><strong>유창성 점수</strong> · 00:50 이내 +4점 · 01:10 이내 +3점 · 01:30 이내 +2점 · 01:30 초과 +1점</div>
+    </section>
+  </main>
+</div>
 
+<script>
+(() => {
+  'use strict';
+  const STORAGE_KEY = 'jp-speaking-practice-v2';
+  const TALK_LIMIT_SECONDS = 90;
+  const DEFAULT_CARD_BANK = {
+    1: [
+      {type:'칭찬하기',content:'모자가 잘 어울린다고 칭찬하기',hint:'모자 잘 어울려 / 잘 어울리네요',hasOX:false},
+      {type:'칭찬하기',content:'옷이 잘 어울린다고 칭찬하기',hint:'옷 잘 어울려 / 잘 어울리네요',hasOX:false},
+      {type:'칭찬하기',content:'안경이 잘 어울린다고 칭찬하기',hint:'안경 잘 어울려 / 잘 어울리네요',hasOX:false},
+      {type:'칭찬하기',content:'가방이 귀엽다고 칭찬하기',hint:'가방 귀여워 / 귀엽네요',hasOX:false},
+      {type:'칭찬하기',content:'부채가 귀엽다고 칭찬하기',hint:'부채 귀여워 / 귀엽네요',hasOX:false},
+      {type:'칭찬하기',content:'진베이가 멋있다고 칭찬하기',hint:'진베이 멋있어 / 멋있네요',hasOX:false},
+      {type:'칭찬하기',content:'춤을 잘 춘다고 칭찬하기',hint:'춤 잘 추네 / 잘 추시네요',hasOX:false},
+      {type:'칭찬하기',content:'요리를 잘한다고 칭찬하기',hint:'요리 잘하네 / 잘하시네요',hasOX:false}
+    ],
+    2: [
+      {type:'권유하기',content:'녹차 권유하기',hint:'녹차 어때? / 녹차 어때요?',hasOX:false},
+      {type:'권유하기',content:'낫토 권유하기',hint:'낫토 어때? / 낫토 어때요?',hasOX:false},
+      {type:'권유하기',content:'생선회 권유하기',hint:'생선회 어때? / 생선회 어때요?',hasOX:false},
+      {type:'권유하기',content:'와가시 권유하기',hint:'화과자 어때? / 화과자 어때요?',hasOX:false},
+      {type:'권유하기',content:'야키소바 권유하기',hint:'야키소바 어때? / 야키소바 어때요?',hasOX:false},
+      {type:'권유하기',content:'타코야키 권유하기',hint:'타코야키 어때? / 타코야키 어때요?',hasOX:false}
+    ],
+    3: [
+      {type:'먼저 말하기',content:'생선회를 먹을 수 있는지 묻기',hint:'생선회 먹을 수 있어? / 먹을 수 있어요?',hasOX:false},
+      {type:'먼저 말하기',content:'한자를 읽을 수 있는지 묻기',hint:'한자 읽을 수 있어? / 읽을 수 있어요?',hasOX:false},
+      {type:'먼저 말하기',content:'자전거를 탈 수 있는지 묻기',hint:'자전거 탈 수 있어? / 탈 수 있어요?',hasOX:false},
+      {type:'먼저 말하기',content:'수영을 할 수 있는지 묻기',hint:'수영할 수 있어? / 할 수 있어요?',hasOX:false}
+    ],
+    4: [
+      {type:'대답하기',content:'유카타를 입은 경험',hasOX:true},
+      {type:'대답하기',content:'봉오도리를 춘 경험',hasOX:true},
+      {type:'대답하기',content:'낫토를 먹은 경험',hasOX:true},
+      {type:'대답하기',content:'도쿄에 가 본 경험',hasOX:true},
+      {type:'대답하기',content:'한국어를 가르친 경험',hasOX:true}
+    ]
+  };
+  const SPEECH = {'친구':'반말','선생님':'정중체'};
+  const els = {
+    cards:document.getElementById('cards'), draw:document.getElementById('drawButton'),
+    redraw:document.getElementById('redrawButton'), reset:document.getElementById('resetButton'),
+    timer:document.getElementById('timer'), timerLabel:document.getElementById('timerLabel'),
+    message:document.getElementById('message')
+  };
+  const cardBank = DEFAULT_CARD_BANK;
+  let state = {cards:null,talkStartedAt:null,stoppedElapsedSeconds:null};
+  let tickHandle = null;
+
+  function escapeHtml(value) {
+    return String(value || '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+  }
+  function randomIndex(length) { return Math.floor(Math.random() * length); }
+  function randomTargets() {
+    const pool = ['친구','친구','선생님','선생님'];
+    for (let i=pool.length-1;i>0;i--) {
+      const j=Math.floor(Math.random()*(i+1));
+      [pool[i],pool[j]]=[pool[j],pool[i]];
+    }
+    return pool;
+  }
+  function persist() { sessionStorage.setItem(STORAGE_KEY,JSON.stringify(state)); }
+  function restore() {
+    try {
+      const saved=JSON.parse(sessionStorage.getItem(STORAGE_KEY));
+      if (saved && saved.cards && saved.talkStartedAt) {
+        state={
+          cards:saved.cards,
+          talkStartedAt:saved.talkStartedAt,
+          stoppedElapsedSeconds:Number.isFinite(saved.stoppedElapsedSeconds) ? saved.stoppedElapsedSeconds : null
+        };
+      }
+    } catch (_) { sessionStorage.removeItem(STORAGE_KEY); }
+  }
+  function setMessage(text,isError=false) {
+    els.message.textContent=text;
+    els.message.classList.toggle('error',isError);
+  }
+  function drawAll() {
+    const targets=randomTargets();
+    const drawn={};
+    [1,2,3,4].forEach((area,i) => {
+      const bank=cardBank[area] && cardBank[area].length ? cardBank[area] : DEFAULT_CARD_BANK[area];
+      const index=randomIndex(bank.length);
+      const data=bank[index];
+      drawn[area]={data,index,target:targets[i],answer:data.hasOX?(Math.random()<.5?'O':'X'):null};
+    });
+    state={cards:drawn,talkStartedAt:Date.now(),stoppedElapsedSeconds:null};
+    persist(); render(); startTicker();
+  }
+  function restartSameCards() {
+    if (!state.cards) return;
+    state.talkStartedAt=Date.now();
+    state.stoppedElapsedSeconds=null;
+    persist(); render(); startTicker();
+  }
+  function stopPractice() {
+    if (!state.cards || state.stoppedElapsedSeconds!==null) return;
+    state.stoppedElapsedSeconds=Math.max(0,Math.floor((Date.now()-state.talkStartedAt)/1000));
+    clearInterval(tickHandle);
+    persist(); render(); updateTimer();
+  }
+  function resetPractice() {
+    clearInterval(tickHandle);
+    state={cards:null,talkStartedAt:null,stoppedElapsedSeconds:null};
+    sessionStorage.removeItem(STORAGE_KEY);
+    render(); updateTimer();
+    setMessage('[한 번에 뽑기] 버튼을 누르면 연습이 시작됩니다.');
+  }
+  function elapsedSeconds() {
+    if (state.stoppedElapsedSeconds!==null) return state.stoppedElapsedSeconds;
+    return state.talkStartedAt ? Math.max(0,Math.floor((Date.now()-state.talkStartedAt)/1000)) : 0;
+  }
+  function formatTime(seconds) {
+    const value=Math.max(0,Math.floor(seconds));
+    return `${String(Math.floor(value/60)).padStart(2,'0')}:${String(value%60).padStart(2,'0')}`;
+  }
+  function updateTimer() {
+    if (!state.talkStartedAt) {
+      els.timerLabel.textContent='대기'; els.timer.textContent='00:00'; els.timer.classList.remove('overtime'); return;
+    }
+    const elapsed=elapsedSeconds();
+    els.timerLabel.textContent=state.stoppedElapsedSeconds!==null?'연습 완료':(elapsed>=TALK_LIMIT_SECONDS?'연습 시간 초과':'연습 시간');
+    els.timer.textContent=formatTime(elapsed);
+    els.timer.classList.toggle('overtime',elapsed>=TALK_LIMIT_SECONDS);
+  }
+  function startTicker() { clearInterval(tickHandle); updateTimer(); tickHandle=setInterval(updateTimer,250); }
+  function placeholderCards() {
+    return [1,2,3,4].map(area=>`<article class="card placeholder"><div class="placeholder-mark">?</div><div class="placeholder-text">상황 ${area}<br>카드 대기 중</div></article>`).join('');
+  }
+  function renderCard(area,item) {
+    const d=item.data;
+    const displayType=(area===1 || area===2)?'먼저 말하기':d.type;
+    const ox=item.answer?`<div class="ox-badge ${item.answer==='O'?'yes':'no'}">${item.answer==='O'?'○ (있음)':'✕ (없음)'}</div>`:'';
+    const hint=d.hint?`<div class="task-hint">${escapeHtml(d.hint)}</div>`:'';
+    return `<article class="card" data-area="${area}">
+      <div class="card-header"><span class="area-title">상황 ${area}</span><span class="area-type">${escapeHtml(displayType)}</span></div>
+      <div class="card-body"><div class="content-top"><div class="task-title">${escapeHtml(d.content)}</div>${hint}${ox}</div>
+      <div class="divider"></div><div class="target${item.target==='선생님'?' teacher':''}">대화대상 : <strong>${escapeHtml(item.target)}</strong><span class="speech">${escapeHtml(SPEECH[item.target])}</span></div></div>
+    </article>`;
+  }
+  function render() {
+    const active=Boolean(state.cards);
+    const stopped=state.stoppedElapsedSeconds!==null;
+    els.cards.innerHTML=active?[1,2,3,4].map(area=>renderCard(area,state.cards[area])).join(''):placeholderCards();
+    els.draw.textContent=!active?'한 번에 뽑기':(stopped?'같은 카드로 다시 연습':'연습 종료');
+    els.redraw.hidden=!active;
+    els.reset.hidden=!active;
+    if (active) setMessage(stopped?`연습을 ${formatTime(elapsedSeconds())}에 마쳤습니다.`:'1분 30초 이후에도 타이머는 계속 진행됩니다.');
+  }
+
+  els.draw.addEventListener('click',()=>{
+    if (!state.cards) drawAll();
+    else if (state.stoppedElapsedSeconds===null) stopPractice();
+    else restartSameCards();
+  });
+  els.redraw.addEventListener('click',drawAll);
+  els.reset.addEventListener('click',resetPractice);
+  restore(); render();
+  if (state.talkStartedAt && state.stoppedElapsedSeconds===null) startTicker(); else updateTimer();
+})();
+</script>
+</body>
+</html>
