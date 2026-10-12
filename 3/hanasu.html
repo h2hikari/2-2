@@ -117,7 +117,7 @@
         <button type="button" class="secondary" id="resetButton" hidden>처음으로</button>
       </div>
       <div id="message">[한 번에 뽑기] 버튼을 누르면 연습이 시작됩니다.</div>
-      <div class="fluency-guide"><strong>유창성 점수</strong> · 00:50 이내 +4점 · 01:10 이내 +3점 · 01:30 이내 +2점 · 01:30 초과 +1점</div>
+      <div class="fluency-guide"><strong>유창성 점수</strong> · 00:40 이내 +4점 · 00:50 이내 +3점 · 01:00 이내 +2점 · 01:00 초과 +1점</div>
     <details class="reference"><summary>상황 3 · 가능 표현 보기</summary><div class="reference-scroll"><table><thead><tr><th>대상</th><th>보통체 (친구에게)</th><th>정중체 (선생님에게)</th></tr></thead><tbody>
       <tr><td>さしみ</td><td>さしみ、たべられる？</td><td>さしみ、たべられますか。</td></tr>
       <tr><td>かんじ</td><td>かんじ、よめる？</td><td>かんじ、よめますか。</td></tr>
@@ -137,7 +137,7 @@
 (() => {
   'use strict';
   const STORAGE_KEY = 'jp-speaking-practice-v2';
-  const TALK_LIMIT_SECONDS = 90;
+  const TALK_LIMIT_SECONDS = 60;
   const DEFAULT_CARD_BANK = {
     1: [
       {type:'칭찬하기',content:'모자가 잘 어울린다고 칭찬하기',hint:'모자 잘 어울려 / 잘 어울리네요',hasOX:false},
@@ -264,9 +264,9 @@
       els.timerLabel.textContent='대기'; els.timer.textContent='00:00'; els.timer.classList.remove('overtime'); return;
     }
     const elapsed=elapsedSeconds();
-    els.timerLabel.textContent=state.stoppedElapsedSeconds!==null?'연습 완료':(elapsed>=TALK_LIMIT_SECONDS?'연습 시간 초과':'연습 시간');
+    els.timerLabel.textContent=state.stoppedElapsedSeconds!==null?'연습 완료':(elapsed>TALK_LIMIT_SECONDS?'연습 시간 초과':'연습 시간');
     els.timer.textContent=formatTime(elapsed);
-    els.timer.classList.toggle('overtime',elapsed>=TALK_LIMIT_SECONDS);
+    els.timer.classList.toggle('overtime',elapsed>TALK_LIMIT_SECONDS);
   }
   function startTicker() { clearInterval(tickHandle); updateTimer(); tickHandle=setInterval(updateTimer,250); }
   function placeholderCards() {
@@ -290,7 +290,7 @@
     els.draw.textContent=!active?'한 번에 뽑기':(stopped?'같은 카드로 다시 연습':'연습 종료');
     els.redraw.hidden=!active;
     els.reset.hidden=!active;
-    if (active) setMessage(stopped?`연습을 ${formatTime(elapsedSeconds())}에 마쳤습니다.`:'1분 30초 이후에도 타이머는 계속 진행됩니다.');
+    if (active) setMessage(stopped?`연습을 ${formatTime(elapsedSeconds())}에 마쳤습니다.`:'1분 이후에도 타이머는 계속 진행됩니다.');
   }
 
   els.draw.addEventListener('click',()=>{
